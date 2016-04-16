@@ -11,7 +11,7 @@
     <packaging>jar</packaging>
  
     <name>streamutil</name>
-    <url>http://www.myorganization.org</url>
+    <url>http://www.myorganization.org</url> 
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -19,6 +19,13 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <speedment.version>2.2.3</speedment.version>
     </properties>
+    
+    <repositories>
+	    <repository>
+	        <id>ondrazizka</id>
+	        <url>http://ondrazizka.googlecode.com/svn/maven</url>
+	    </repository>
+	</repositories>
     
     <build>
         <plugins>
@@ -39,6 +46,13 @@
     </build>
  
     <dependencies>
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.6</version>
+		</dependency>
+		
+		
         <dependency>
             <groupId>com.speedment</groupId>
             <artifactId>speedment</artifactId>

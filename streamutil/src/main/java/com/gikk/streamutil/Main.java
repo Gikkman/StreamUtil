@@ -2,8 +2,11 @@ package com.gikk.streamutil;
 
 
 
+import java.util.*;
+
 import com.gikk.speedment.test.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.speedment.test.gikk_stream_util.db0.gikk_stream_util.users.Users;
+import com.gikk.streamutil.irc.GikkBot;
 import com.speedment.Manager;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
@@ -17,7 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
-/**
+/** 
  *
  * @author Your name
  */
@@ -26,12 +29,16 @@ public class Main extends Application{
 	@FXML TextField txt_field;
 	
 	public void start(Stage primaryStage) {
+		GikkBot bot = new GikkBot();
+		        
 		try {
-			BorderPane root = new BorderPane();
 			Scene scene = new Scene (FXMLLoader.load( getClass().getResource("Main.fxml") ) );
 			
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
+			
+			primaryStage.setOnCloseRequest( (e) -> bot.closeConnection() );
+			
 			primaryStage.show();
 		} catch(Exception e) {
 			e.printStackTrace();
