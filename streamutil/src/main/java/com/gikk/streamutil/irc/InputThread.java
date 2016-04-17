@@ -7,13 +7,18 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 class InputThread extends Thread{
+	//***********************************************************************************************
+	//											VARIABLES
+	//***********************************************************************************************
 	private final IrcConnection connection;
 	private final BufferedReader reader;
 	private final BufferedWriter writer;
 	
 	private boolean isConnected = true;
-	private boolean isActive	= true;
 	
+	//***********************************************************************************************
+	//											CONSTRUCTOR
+	//***********************************************************************************************
 	public InputThread(IrcConnection connection, BufferedReader reader, BufferedWriter writer){
 		this.connection = connection;
 		this.reader  = reader;
@@ -34,8 +39,11 @@ class InputThread extends Thread{
                 	
                 	if (line.toLowerCase( ).startsWith("ping ")) {
     			        // We must respond to PINGs to avoid being disconnected.
-                		StaticMethods.sendLine("PONG " + line.substring(5) + "\r\n", writer);
-    			        StaticMethods.sendLine("PRIVMSG " + connection.getChannel() + " :I got pinged!\r\n", writer);
+                		//
+                		// A PING contains the message "PINK SERVER_ID", and we want to reply with server ID aswell
+                		// Hence, we reply "PONG SERVER_ID". That's where the substring(5) comes from bellow                		
+                		connection.serverMessage("PONG " + connection.getServerName());
+                		connection.serverMessage("PRIVMSG " + connection.getChannel() + " :I got pinged!");
     			    }
                 }
                 //If we reach this line, it means the line was null. That only happens if the end of the stream's been reached
@@ -43,7 +51,7 @@ class InputThread extends Thread{
             }
             catch (SocketTimeoutException e){
             	//If we time out, that means we haven't seen anything from server in a while, so we ping it
-            	StaticMethods.sendLine("PING", writer);
+            	connection.serverMessage("PING " + connection.getServerName());
             }
             catch (SocketException e) {
 				//This means we force closed the socket. Hence, we just let it slide
@@ -54,12 +62,13 @@ class InputThread extends Thread{
             }
         }
 		//If we have been disconnected, we close the connection and clean up the resources held by the IrcConnection
-		isActive = false;
 		connection.closeConnection();
 	}
 
+	//***********************************************************************************************
+	//											PUBLIC
+	//***********************************************************************************************
 	public void end() {
 		isConnected = false;
-		isActive = false;
 	}
 }

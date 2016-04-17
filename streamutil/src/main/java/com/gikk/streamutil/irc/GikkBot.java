@@ -1,7 +1,6 @@
 package com.gikk.streamutil.irc;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 
 
@@ -39,9 +38,28 @@ public class GikkBot{
 
 		addCapacity(Capacity.MEMBERS);
 		addCapacity(Capacity.COMMANDS);
-		//TODO: setMessageDelay(1500);
 		
 				
+	}
+	
+	public void channelMessage(String message){
+		irc.channelMessage(message);
+	}
+	
+	public void clearChat(){
+		irc.priorityChannelMessage(".clear");
+	}
+	
+	public void purgeUser(String user){
+		timeoutUser(user, 1);
+	}
+	
+	public void timeoutUser(String user, int time){
+		irc.priorityChannelMessage(".timeout " + user + " " + time);
+	}
+	
+	public void serverMessage(String text) {
+		irc.serverMessage(text);	
 	}
 	
 	private void addCapacity(Capacity capacity){
@@ -61,4 +79,6 @@ public class GikkBot{
 	public void closeConnection() {
 		irc.closeConnection();
 	}
+
+
 }

@@ -14,12 +14,19 @@ import java.util.LinkedList;
  *
  */
 class OutputQueue {
+	//***********************************************************************************************
+	//											VARIABLES
+	//***********************************************************************************************
 	private final LinkedList<String> queue = new LinkedList<>();
 	
 	/**Adds a message to the back of the output queue
 	 * 
 	 * @param s The message to add to the queue
 	 */
+	
+	//***********************************************************************************************
+	//											PUBLIC
+	//***********************************************************************************************
 	public void add(String s){
 		synchronized (queue) {
 			queue.add(s);
@@ -42,13 +49,18 @@ class OutputQueue {
 	/**A <b>blocking</b> call that retrieves the next message from the queue.
 	 * If no message is currently in the queue, this method will block until a message appears.
 	 * 
-	 * @return The next message
+	 * @return The next message OR <code>null</code>(if we were interrupted and there were no message in the queue)
 	 */
 	public String next(){
 		synchronized (queue) {
 			if( !hasNext() )
 				try { queue.wait(); } 
-				catch (InterruptedException e) { e.printStackTrace(); }
+				catch (InterruptedException e) { 
+					/* Being interrupted either means that there now is an element in the queue or
+					 * that the application is shutting down */ 
+					if( !hasNext() )
+						return null;
+				}
 			
 			String message = queue.getFirst();
 			queue.removeFirst();

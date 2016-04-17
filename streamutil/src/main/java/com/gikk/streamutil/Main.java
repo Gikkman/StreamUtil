@@ -2,8 +2,6 @@ package com.gikk.streamutil;
 
 
 
-import java.util.*;
-
 import com.gikk.speedment.test.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.speedment.test.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.gikk.streamutil.irc.GikkBot;
@@ -17,7 +15,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 /** 
@@ -27,9 +24,12 @@ import javafx.stage.Stage;
 public class Main extends Application{
 	
 	@FXML TextField txt_field;
+	@FXML TextField txt_field2;
+	
+	private static GikkBot bot;
 	
 	public void start(Stage primaryStage) {
-		GikkBot bot = new GikkBot();
+		bot = new GikkBot();
 		        
 		try {
 			Scene scene = new Scene (FXMLLoader.load( getClass().getResource("Main.fxml") ) );
@@ -54,7 +54,11 @@ public class Main extends Application{
 	}
 	
 	@FXML protected void onClick(ActionEvent e){
-		addUser( txt_field.getText() );
+		bot.channelMessage( txt_field.getText() );
+	}
+	
+	@FXML protected void onClick2(ActionEvent e){
+		bot.serverMessage( txt_field2.getText() );
 	}
 	
 	private void addUser(String name){

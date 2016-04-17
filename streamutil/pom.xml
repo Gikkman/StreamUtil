@@ -25,6 +25,11 @@
 	        <id>ondrazizka</id>
 	        <url>http://ondrazizka.googlecode.com/svn/maven</url>
 	    </repository>
+	    
+	    <repository>
+		    <id>jitpack.io</id>
+		    <url>https://jitpack.io</url>
+		</repository>
 	</repositories>
     
     <build>
@@ -46,13 +51,21 @@
     </build>
  
     <dependencies>
+    	<!-- Twitch communication -->
+        <dependency>
+			<groupId>com.github.arcticlight</groupId>
+			<artifactId>Java-Twitch-Api-Wrapper</artifactId>
+			<version>0.3-x</version>
+		</dependency>
+        
+        <!-- Easy config files -->
 		<dependency>
 			<groupId>commons-configuration</groupId>
 			<artifactId>commons-configuration</artifactId>
 			<version>1.6</version>
 		</dependency>
 		
-		
+		<!-- Speedment -->
         <dependency>
             <groupId>com.speedment</groupId>
             <artifactId>speedment</artifactId>

@@ -19,6 +19,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  *
  */
 class IrcConnection {	
+	//***********************************************************************************************
+	//											VARIABLES
+	//***********************************************************************************************
 	private final String server;
 	private final String nick;
 	private final String pass;
@@ -27,11 +30,19 @@ class IrcConnection {
 	
 	private final OutputThread outThread;
 	private final InputThread inThread;
+	private final OutputQueue queue;
 	
+	private boolean isConnected = false;
+	private boolean isJoined    = false;
 	private Socket socket = null;
 	private BufferedWriter writer = null;
 	private BufferedReader reader = null;
+	
+	private String serverName = "";
 
+	//***********************************************************************************************
+	//											CONSTRUCTOR
+	//***********************************************************************************************
     public IrcConnection(File file) {
     	PropertiesConfiguration prop = new PropertiesConfiguration();
     	prop.setDelimiterParsingDisabled(true);
@@ -48,10 +59,9 @@ class IrcConnection {
         channel = prop.getString("Channel");
         port 	= prop.getInt("Port"); 
         
-        
         try{
         	socket = new Socket(server, port);
-        	socket.setSoTimeout(60 * 1000); //Set a timeout for connection to 30 seconds
+        	socket.setSoTimeout(120 * 1000); //Set a timeout for connection to 30 seconds
         } catch (Exception e){
         	e.printStackTrace();
         }
@@ -66,16 +76,45 @@ class IrcConnection {
 			e.printStackTrace();
 		}
 		
-		this.outThread = new OutputThread(this, reader, writer);
+		this.queue 	   = new OutputQueue();
+		this.outThread = new OutputThread(this, queue, reader, writer);
 		this.inThread  = new InputThread(this, reader, writer);
     }
     
+	//***********************************************************************************************
+	//											PUBLIC
+	//***********************************************************************************************
 	public void serverMessage(String message) {
-		StaticMethods.sendLine(message, writer);		
+		outThread.quickSend(message);
 	}
 	
+	public void channelMessage(String message) {
+		outThread.enqueueMessage("PRIVMSG " + getChannel() + " :" + message);
+	}
+	
+	public void priorityChannelMessage(String message) {
+		outThread.enqueueMessageFront("PRIVMSG " + getChannel() + " :" + message);
+		
+	}
+	
+	public boolean isConnected() {
+		return isConnected;
+	}
+	
+	public boolean isJoined() {
+		return isJoined;
+	}
+
 	public String getChannel() {
 		return channel;
+	}
+	
+	public String getNick() {
+		return nick;
+	}
+	
+	public String getServerName(){
+		return serverName;
 	}
         
     /**Connects to the Twitch server and joins the appropriate channel.
@@ -83,16 +122,31 @@ class IrcConnection {
      * @return True if both connections succeeded
      */
     public void connect(){
-    	doConnect();
-    	doJoin();
+    	if( isConnected ){
+	    	System.err.println("\tAlready connected to a server!");
+	    	return;
+    	}    		
+    		
+    	isConnected = doConnect();
+    	isJoined    = doJoin();
     	
     	inThread.start();
     	outThread.start();
     	
-    	StaticMethods.sendLine("PRIVMSG " + channel + " Hello!", writer);
+    	channelMessage("Hello! " + getNick() + " at your service!");
     }
-    
+
 	public void closeConnection() {
+		//Since several sources can call this method on program shutdown, we avoid entering it again if 
+		//we've already disconnected
+		if( !isConnected )
+			return;
+		
+		System.out.println("\n\tDisconnecting from IRC...");
+		
+		isConnected = false;
+		isJoined    = false;
+		
 		outThread.end();
 		if( outThread.isAlive() )
 			outThread.interrupt();
@@ -110,8 +164,12 @@ class IrcConnection {
 		try { writer.close(); } 
 		catch (IOException e) { e.printStackTrace(); }
 		
+		System.out.println("\tAll IRC resources has been disposed of\n");
 	}
 	
+	//***********************************************************************************************
+	//											PRIVATE
+	//***********************************************************************************************
 	private boolean doConnect(){
 		// Log on to the server.
         try {
@@ -128,13 +186,16 @@ class IrcConnection {
         try {
 			while ((line = reader.readLine()) != null) {
 				System.out.println("IN  " + line);
+				
+				if( serverName.isEmpty() )
+					serverName = line.substring(0, line.indexOf(" "));
 			    if (line.indexOf("004") >= 0) {
 			        return true;
 			    }
 			    else if (line.indexOf("433") >= 0) {
 			        System.out.println("Nickname is already in use.");
 			        return false;
-			    } 
+			    }
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -153,7 +214,4 @@ class IrcConnection {
 			return false;
 		}       
     }
-
-
-
 }
