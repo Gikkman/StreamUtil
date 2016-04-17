@@ -5,28 +5,36 @@ import java.nio.file.Paths;
 
 
 /**Class that allows for easy use of the underlying IRC connection. The IRC bot loads all its setting from
- * a file named 'pirc.ini' located in the user's home directory. 
+ * a file named 'gikk.ini' located in the user's home directory. <br><br>
  * 
- * The file should contain the following fields:
-
-	Nick = BOT_NAME
-	
-	Password = oauth:********************** (Get your bot's oauth at https://twitchapps.com/tmi/)
-	
-	Server = irc.twitch.tv
-	Port = 6667
-	
-	Channel = #YOUR_STREAM_CHANNEL
+ * The file should contain the following fields:<br>
+ * --------------------------------------------------<br>
+	Nick = BOT_NAME<br>
+	Password = oauth:********************** (Get your bot's oauth at https://twitchapps.com/tmi/) <br>
+	<br>
+	Server = irc.twitch.tv<br>
+	Port = 6667<br>
+	<br>
+	Channel = #YOUR_STREAM_CHANNEL<br>
+	ClientID = YOUR_CLIENT_ID
+ * --------------------------------------------------
+ * 
+ * TODO: Move this loading of the ini file to another class, and make the ini file gloabaly accessible, since it is needed
+ * in more than one place
  * 
  * @author Simon
  */
 public class GikkBot{
+	//***********************************************************************************************
+	//											VARIABLES
+	//***********************************************************************************************
 	enum Capacity {MEMBERS, COMMANDS, TAGS};
 	
 	private final IrcConnection irc;
 	
-//	protected final String channel;
-	
+	//***********************************************************************************************
+	//											CONSTRUCTOR
+	//***********************************************************************************************
 	public GikkBot() {
 		
 		//Load the bots settings from a file named "pirc.ini" located in the users Home folder.
@@ -42,6 +50,9 @@ public class GikkBot{
 				
 	}
 	
+	//***********************************************************************************************
+	//											PUBLIC
+	//***********************************************************************************************
 	public void channelMessage(String message){
 		irc.channelMessage(message);
 	}
@@ -62,6 +73,13 @@ public class GikkBot{
 		irc.serverMessage(text);	
 	}
 	
+	public void closeConnection() {
+		irc.closeConnection();
+	}
+	
+	//***********************************************************************************************
+	//											PRIVATE
+	//***********************************************************************************************
 	private void addCapacity(Capacity capacity){
 		switch (capacity) {
 		case MEMBERS:
@@ -75,10 +93,4 @@ public class GikkBot{
 			break;
 		}
 	}
-
-	public void closeConnection() {
-		irc.closeConnection();
-	}
-
-
 }

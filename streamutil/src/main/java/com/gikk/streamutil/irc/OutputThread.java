@@ -4,6 +4,14 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 
+/**This class handles all outgoing IRC traffic.<br><br>
+ * 
+ * The implementation is intended to be thread safe and handle all potential errors (<u>keyword: INTENDED</u>). 
+ * That means that we can have multiple threads feeding the message queue safely and still operate without any trouble.
+ * 
+ * @author Simon
+ *
+ */
 class OutputThread extends Thread{
 	//***********************************************************************************************
 	//											VARIABLES
@@ -51,20 +59,36 @@ class OutputThread extends Thread{
 	//											PUBLIC
 	//***********************************************************************************************
 
+	/**Enqueues a message at the end of the message queue.
+	 * 
+	 * @param message
+	 */
 	public void enqueueMessage(String message){
 		queue.add(message);
 	}
 	
+	/**Enqueues a message at the front of the message queue. The message will be sent as soon as possible.
+	 * 
+	 * @param message
+	 */
 	public void enqueueMessageFront(String message){
-		//TODO: Find a more elegant way than this for sending messages quickly
 		queue.addFirst(message);
 	}
 	
-
+	/**Circumvents the message queue completely and attempts to send the message at one. Should only be used for sending
+	 * PING responses.
+	 * 
+	 * @param message
+	 */
 	public void quickSend(String message) {
+		//TODO: Make sure that this is really thread safe...
 		sendLine(message);		
 	}
 	
+	/**Tells the thread to not start listening for new messages again. However, if the thread is already listening for
+	 * messages, this method will not interrupt the thread. That has to be done manually.
+	 * 
+	 */
 	public void end() {
 		isConnected = false;
 	}
@@ -94,8 +118,10 @@ class OutputThread extends Thread{
 		}		
 		
 		try{
-			writer.write(message + "\r\n");
-			writer.flush();
+			synchronized (writer) {		
+				writer.write(message + "\r\n");
+				writer.flush();
+			}
 			System.out.println("OUT " + message);
 		} catch (IOException e){
 			e.printStackTrace();

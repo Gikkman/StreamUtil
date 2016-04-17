@@ -141,7 +141,6 @@ public final class UsersImpl extends AbstractBaseEntity<Users> implements Users 
     public boolean equals(Object that) {
         if (this == that) { return true; }
         if (!(that instanceof Users)) { return false; }
-        @SuppressWarnings("unchecked")
         final Users thatUsers = (Users)that;
         if (!Objects.equals(this.getId(), thatUsers.getId())) {return false; }
         if (!Objects.equals(this.getUsername(), thatUsers.getUsername())) {return false; }

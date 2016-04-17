@@ -84,7 +84,11 @@ class IrcConnection {
 	//***********************************************************************************************
 	//											PUBLIC
 	//***********************************************************************************************
-	public void serverMessage(String message) {
+	/**Sends a message directly to the server. This method should be used very sparsely.
+	 * 
+	 * @param message
+	 */
+    public void serverMessage(String message) {
 		outThread.quickSend(message);
 	}
 	
@@ -136,6 +140,10 @@ class IrcConnection {
     	channelMessage("Hello! " + getNick() + " at your service!");
     }
 
+    /**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
+     * frees all resources.
+     * 
+     */
 	public void closeConnection() {
 		//Since several sources can call this method on program shutdown, we avoid entering it again if 
 		//we've already disconnected

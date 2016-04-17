@@ -13,10 +13,24 @@ public abstract class RepeatedTask implements GikkTask {
 	
 	private ScheduledFuture<?> future;
 	
-	public final void schedule(int periodSeconds) {
-		future = Scheduler.GET().scheduleRepeatedTask(this, periodSeconds);		
+	/**Schedules this task so that it is called periodically. A task will remain in the scheduling queue until
+	 * explicitly removed or until the program terminates. <br><br>
+	 * 
+	 * Directly after the task has been scheduled, the onSchedule method will be called. Execution of the onSchedule method
+	 * is performed on the same thread that called this method.
+	 * 
+	 * @param initialDelay	How long we wait until we execute this task the first time
+	 * @param periodSeconds	How long we wait until we execute this task from the previous time it was executed
+	 */
+	public final void schedule(int initialDelay, int periodSeconds) {
+		future = Scheduler.GET().scheduleRepeatedTask(this, initialDelay, periodSeconds);		
 	}
 	
+	/** Calling this method will attempt to end this task.<br>
+	 *  If cancellation is successful, the onEnd method will be called. Cancellation might fail if
+	 *  the task has already been finished.
+	 * 
+	 */
 	public final void endTask(){
 		if( future == null )
 			return;

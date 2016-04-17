@@ -6,6 +6,13 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
+/**Class for handling all incoming IRC traffic (after the initial connection is established). <br><br>
+ * 
+ * The implementation is intended to be thread safe and handle all potential errors (<u>keyword: INTENDED</u>).
+ * 
+ * @author Simon
+ *
+ */
 class InputThread extends Thread{
 	//***********************************************************************************************
 	//											VARIABLES
@@ -54,7 +61,10 @@ class InputThread extends Thread{
             	connection.serverMessage("PING " + connection.getServerName());
             }
             catch (SocketException e) {
-				//This means we force closed the socket. Hence, we just let it slide
+            	//This probably means we force closed the socket. If the message is not "Socket closed", something else
+            	//happened.
+            	if( !(e.getMessage().indexOf("Socket closed") >= 0) )
+            		e.printStackTrace();
 			}
             catch (IOException e) {
             	//Apparently, something went wrong with our line reading...	

@@ -5,6 +5,7 @@ package com.gikk.streamutil;
 import com.gikk.speedment.test.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.speedment.test.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.gikk.streamutil.irc.GikkBot;
+import com.gikk.streamutil.task.Scheduler;
 import com.speedment.Manager;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
@@ -32,12 +33,15 @@ public class Main extends Application{
 		bot = new GikkBot();
 		        
 		try {
-			Scene scene = new Scene (FXMLLoader.load( getClass().getResource("Main.fxml") ) );
+			Scene scene = new Scene (FXMLLoader.load( getClass().getResource("gui/MainWindow.fxml") ) );
 			
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			scene.getStylesheets().add(getClass().getResource("gui/application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			
-			primaryStage.setOnCloseRequest( (e) -> bot.closeConnection() );
+			primaryStage.setOnCloseRequest( (e) -> {
+				bot.closeConnection();
+				Scheduler.GET().onProgramExit();
+			} );
 			
 			primaryStage.show();
 		} catch(Exception e) {
@@ -61,6 +65,7 @@ public class Main extends Application{
 		bot.serverMessage( txt_field2.getText() );
 	}
 	
+	//TODO: Find a way to incorporate this....
 	private void addUser(String name){
 		Speedment speedment = new GikkStreamUtilApplication().build();
         Manager<Users> users = speedment.managerOf(Users.class);
