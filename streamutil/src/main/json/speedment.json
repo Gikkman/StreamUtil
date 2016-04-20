@@ -1,0 +1,152 @@
+{
+  "config": {
+    "expanded": true,
+    "companyName": "gikk",
+    "name": "gikk_stream_util",
+    "packageLocation": "src/main/java/",
+    "dbmses": [
+      {
+        "expanded": true,
+        "port": 3306.0,
+        "schemas": [
+          {
+            "tables": [
+              {
+                "expanded": true,
+                "primaryKeyColumns": [
+                  {
+                    "expanded": true,
+                    "name": "ID",
+                    "ordinalPosition": 1.0
+                  }
+                ],
+                "indexes": [
+                  {
+                    "expanded": false,
+                    "unique": true,
+                    "name": "PRIMARY",
+                    "indexColumns": [
+                      {
+                        "orderType": "ASC",
+                        "expanded": true,
+                        "name": "ID",
+                        "ordinalPosition": 1.0
+                      }
+                    ],
+                    "enabled": true
+                  },
+                  {
+                    "expanded": false,
+                    "unique": true,
+                    "name": "USERNAME",
+                    "indexColumns": [
+                      {
+                        "orderType": "ASC",
+                        "expanded": true,
+                        "name": "USERNAME",
+                        "ordinalPosition": 1.0
+                      }
+                    ],
+                    "enabled": true
+                  }
+                ],
+                "columns": [
+                  {
+                    "databaseType": "java.lang.Integer",
+                    "typeMapper": "com.speedment.config.db.mapper.identity.IntegerIdentityMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "ID",
+                    "ordinalPosition": 1.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.String",
+                    "typeMapper": "com.speedment.config.db.mapper.identity.StringIdentityMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "USERNAME",
+                    "ordinalPosition": 2.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.String",
+                    "typeMapper": "com.speedment.config.db.mapper.identity.StringIdentityMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "STATUS",
+                    "ordinalPosition": 3.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.Integer",
+                    "typeMapper": "com.speedment.config.db.mapper.identity.IntegerIdentityMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "TIME_ONLINE",
+                    "ordinalPosition": 4.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.Integer",
+                    "typeMapper": "com.speedment.config.db.mapper.identity.IntegerIdentityMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "name": "LINES_WRITTEN",
+                    "ordinalPosition": 5.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.String",
+                    "typeMapper": "com.speedment.config.db.mapper.string.TrueFalseStringToBooleanMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "IS_TRUSTED",
+                    "ordinalPosition": 6.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.String",
+                    "typeMapper": "com.speedment.config.db.mapper.string.TrueFalseStringToBooleanMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "IS_FOLLOWER",
+                    "ordinalPosition": 7.0,
+                    "enabled": true
+                  },
+                  {
+                    "databaseType": "java.lang.String",
+                    "typeMapper": "com.speedment.config.db.mapper.string.TrueFalseStringToBooleanMapper",
+                    "expanded": true,
+                    "nullable": false,
+                    "autoIncrement": false,
+                    "name": "IS_SUBSCRIBER",
+                    "ordinalPosition": 8.0,
+                    "enabled": true
+                  }
+                ],
+                "name": "user",
+                "enabled": true
+              }
+            ],
+            "expanded": true,
+            "name": "gikk_stream_util",
+            "enabled": true
+          }
+        ],
+        "name": "db0",
+        "typeName": "MySQL",
+        "ipAddress": "127.0.0.1",
+        "enabled": true,
+        "username": "gikkman"
+      }
+    ],
+    "enabled": true
+  }
+}

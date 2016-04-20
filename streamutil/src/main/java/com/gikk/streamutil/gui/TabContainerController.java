@@ -1,15 +1,13 @@
 package com.gikk.streamutil.gui;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
-import com.gikk.streamutil.Main;
 import com.gikk.streamutil.gui.tabs._TabControllerBase;
-import com.gikk.streamutil.misc.JarResourceLister;
 import com.gikk.streamutil.misc.KeyPriorityQueue_Min;
 
 import javafx.fxml.FXML;
@@ -28,16 +26,19 @@ import javafx.scene.control.TabPane;
  *
  */
 public class TabContainerController implements Initializable{
-	private final static String TABS_LOCATION = "gui/tabs/";
 	@FXML TabPane tab_pane;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources){
 		 try {
 			//First, we fetch all files from the tabs folder and store them in the fxmlFiles array list
+			ClassLoader cl = this.getClass().getClassLoader();
+			String DIRECTORY = "tabs/";
 			ArrayList<String> fxmlFiles = new ArrayList<>();
-			String[] files = JarResourceLister.getResourceListing(Main.class, TABS_LOCATION);
-			Arrays.sort(files);
+			URL path = this.getClass().getClassLoader().getResource(DIRECTORY);
+			File dir = new File(path.toURI());
+			
+			String[] files = dir.list();
 			
 			for(String s : files)
 				if( s.endsWith(".fxml") )
@@ -47,7 +48,7 @@ public class TabContainerController implements Initializable{
 			KeyPriorityQueue_Min<Tab> tabOrder = new KeyPriorityQueue_Min<>();
 			for( String tab : fxmlFiles ){
 				try {					
-					FXMLLoader loader = new FXMLLoader( Main.class.getResource( TABS_LOCATION + tab  ) );
+					FXMLLoader loader = new FXMLLoader( cl.getResource( DIRECTORY+ tab ) );
 					Parent p = loader.load();
 					
 					Tab t = new Tab( tab.substring(0, tab.indexOf(".") ));
@@ -69,7 +70,7 @@ public class TabContainerController implements Initializable{
 			while( !tabOrder.isEmpty() )
 				tab_pane.getTabs().add( tabOrder.poll() );	
 			
-		} catch (URISyntaxException | IOException e) {
+		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
 	}	

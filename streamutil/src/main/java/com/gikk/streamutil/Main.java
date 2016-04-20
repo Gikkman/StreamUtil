@@ -1,14 +1,13 @@
 package com.gikk.streamutil;
 
-
-
-import com.gikk.speedment.test.gikk_stream_util.GikkStreamUtilApplication;
-import com.gikk.speedment.test.gikk_stream_util.db0.gikk_stream_util.users.Users;
+import java.net.URISyntaxException;
+import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
+import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
 import com.gikk.streamutil.irc.GikkBot;
 import com.gikk.streamutil.task.Scheduler;
-import com.speedment.Manager;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
+import com.speedment.manager.Manager;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -29,15 +28,17 @@ public class Main extends Application{
 	
 	private static GikkBot bot;
 	
-	public void start(Stage primaryStage) {
+	public void start(Stage primaryStage) throws URISyntaxException {
 		bot = new GikkBot();
+		
+		// Get current classloader
+		ClassLoader cl = this.getClass().getClassLoader();
 		        
 		try {
-			Scene scene = new Scene (FXMLLoader.load( getClass().getResource("gui/MainWindow.fxml") ) );
+			Scene scene = new Scene(FXMLLoader.load( cl.getResource("MainWindow.fxml") ) );
+			scene.getStylesheets().add( cl.getResource("application.css").toExternalForm() );
 			
-			scene.getStylesheets().add(getClass().getResource("gui/application.css").toExternalForm());
 			primaryStage.setScene(scene);
-			
 			primaryStage.setOnCloseRequest( (e) -> {
 				bot.closeConnection();
 				Scheduler.GET().onProgramExit();
@@ -68,7 +69,7 @@ public class Main extends Application{
 	//TODO: Find a way to incorporate this....
 	private void addUser(String name){
 		Speedment speedment = new GikkStreamUtilApplication().build();
-        Manager<Users> users = speedment.managerOf(Users.class);
+        Manager<User> users = speedment.managerOf(User.class);
         
         final String lcName = name.toLowerCase();
         
@@ -79,7 +80,7 @@ public class Main extends Application{
         
 		Thread t = new Thread( () -> {
 	        try {
-	            Users user = users.newInstance()
+	            User user = users.newEmptyEntity()
 	                .setUsername(lcName)
 	                .setIsFollower(false)
 	                .setIsSubscriber(false)

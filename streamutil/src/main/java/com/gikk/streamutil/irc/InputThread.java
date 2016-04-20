@@ -63,7 +63,7 @@ class InputThread extends Thread{
             catch (SocketException e) {
             	//This probably means we force closed the socket. If the message is not "Socket closed", something else
             	//happened.
-            	if( !(e.getMessage().indexOf("Socket closed") >= 0) )
+            	if( !(e.getMessage().indexOf("Socket Closed") >= 0) )
             		e.printStackTrace();
 			}
             catch (IOException e) {

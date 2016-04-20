@@ -25,9 +25,9 @@ dbms {
         table {
             columnCompressionType = ColumnCompressionType.INHERIT;
             fieldStorageType = FieldStorageType.INHERIT;
-            name = "users";
+            name = "user";
             storageEngineType = StorageEngineType.INHERIT;
-            tableName = "users";
+            tableName = "user";
             enabled = true;
             expanded = true;
             column {
@@ -46,6 +46,17 @@ dbms {
                 databaseType = java.lang.String.class;
                 fieldStorageType = FieldStorageType.INHERIT;
                 name = "USERNAME";
+                typeMapper = com.speedment.internal.core.config.mapper.identity.StringIdentityMapper.class;
+                autoincrement = false;
+                enabled = true;
+                expanded = true;
+                nullable = false;
+            }
+            column {
+                columnCompressionType = ColumnCompressionType.INHERIT;
+                databaseType = java.lang.String.class;
+                fieldStorageType = FieldStorageType.INHERIT;
+                name = "STATUS";
                 typeMapper = com.speedment.internal.core.config.mapper.identity.StringIdentityMapper.class;
                 autoincrement = false;
                 enabled = true;
@@ -115,7 +126,7 @@ dbms {
             index {
                 name = "PRIMARY";
                 enabled = true;
-                expanded = false;
+                expanded = true;
                 unique = true;
                 indexColumn {
                     name = "ID";
@@ -127,7 +138,7 @@ dbms {
             index {
                 name = "USERNAME";
                 enabled = true;
-                expanded = false;
+                expanded = true;
                 unique = true;
                 indexColumn {
                     name = "USERNAME";
