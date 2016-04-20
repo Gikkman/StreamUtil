@@ -42,8 +42,7 @@ public class TwitchApi {
 
 	private final String token;
 	private final String channel;
-	private final String clientID;
-	
+	private final String clientID;	
 	
 	//***********************************************************************************************
 	//											STATIC
@@ -99,7 +98,7 @@ public class TwitchApi {
 		makeUpdate(params);
 	}
 	
-	public void setDelay(int seconds) {
+	public void setBroadcastDelay(int seconds) {
 		makeUpdate("delay", String.valueOf(seconds) );
 	}
 	

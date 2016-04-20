@@ -2,9 +2,12 @@ package com.gikk.streamutil.irc;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+
+import com.mysql.fabric.xmlrpc.base.Array;
 
 /**Had to write my own IRC connection class since there were no libraries that were up to date and applicable with
  * Appache v2 license.
@@ -31,6 +34,8 @@ class IrcConnection {
 	private final OutputThread outThread;
 	private final InputThread inThread;
 	private final OutputQueue queue;
+	
+	private final ArrayList<IrcListeners> listeners = new ArrayList<>();
 	
 	private boolean isConnected = false;
 	private boolean isJoined    = false;
@@ -177,7 +182,7 @@ class IrcConnection {
 	
 	//***********************************************************************************************
 	//											PRIVATE
-	//***********************************************************************************************
+	//***********************************************************************************************	
 	private boolean doConnect(){
 		// Log on to the server.
         try {
@@ -222,4 +227,18 @@ class IrcConnection {
 			return false;
 		}       
     }
+    
+	void incommingMessage(String line){
+		IrcMessage message = new IrcMessage(line);
+		
+		if (message.sender.equalsIgnoreCase("PING") ||  message.command.equalsIgnoreCase("PING")) {
+	        // We must respond to PINGs to avoid being disconnected.
+    		//
+    		// A PING contains the message "PING MESSAGE", and we want to reply with MESSAGE as well
+    		// Hence, we reply "PONG MESSAGE" . That's where the substring(5) comes from bellow, we strip
+    		//out everything but the message
+    		serverMessage("PONG :" + message.content != "" ? message.content : message.command );
+    		serverMessage("PRIVMSG " + getChannel() + " :We got pinged!");
+		} 
+	}
 }

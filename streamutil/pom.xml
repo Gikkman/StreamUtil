@@ -46,9 +46,8 @@
 	                    <groupId>mysql</groupId>
 	                    <artifactId>mysql-connector-java</artifactId>
 	                    <version>5.1.38</version>
-	                </dependency>
-	                
-	                <!-- Custom plugin -->
+	                </dependency>                
+               		 <!-- Custom plugin -->
 			        <dependency>
 			            <groupId>com.github.gikkman</groupId>
 			            <artifactId>int-bool-mapper</artifactId>
@@ -59,7 +58,7 @@
 		        <configuration>
 			        <components>
 			            <component implementation=
-			            	"com.github.gikkman.int-bool-mapper.src.main.java.com.gikk.int_bool_mapper.CustomMappingComponentInstaller" 
+			            	"com.gikk.int_bool_mapper.CustomMappingComponentInstaller" 
 			            />
 			        </components>
 			    </configuration>

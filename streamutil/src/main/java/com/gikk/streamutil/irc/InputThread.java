@@ -44,21 +44,14 @@ class InputThread extends Thread{
                 	//print what we got
                 	System.out.println("IN  " + line);
                 	
-                	if (line.toLowerCase( ).startsWith("ping ")) {
-    			        // We must respond to PINGs to avoid being disconnected.
-                		//
-                		// A PING contains the message "PINK SERVER_ID", and we want to reply with server ID aswell
-                		// Hence, we reply "PONG SERVER_ID". That's where the substring(5) comes from bellow                		
-                		connection.serverMessage("PONG " + connection.getServerName());
-                		connection.serverMessage("PRIVMSG " + connection.getChannel() + " :I got pinged!");
-    			    }
+                	connection.incommingMessage(line);
                 }
                 //If we reach this line, it means the line was null. That only happens if the end of the stream's been reached
                 isConnected = false;
             }
             catch (SocketTimeoutException e){
             	//If we time out, that means we haven't seen anything from server in a while, so we ping it
-            	connection.serverMessage("PING " + connection.getServerName());
+            	connection.serverMessage("PING " + System.currentTimeMillis());
             }
             catch (SocketException e) {
             	//This probably means we force closed the socket. If the message is not "Socket closed", something else

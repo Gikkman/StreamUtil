@@ -8,16 +8,16 @@ import java.nio.file.Paths;
  * a file named 'gikk.ini' located in the user's home directory. <br><br>
  * 
  * The file should contain the following fields:<br>
- * --------------------------------------------------<br>
+ * --------------------------------------------------<br><code>
 	Nick = BOT_NAME<br>
-	Password = oauth:********************** (Get your bot's oauth at https://twitchapps.com/tmi/) <br>
+	Password = oauth:********************** <br>
 	<br>
 	Server = irc.twitch.tv<br>
 	Port = 6667<br>
 	<br>
 	Channel = #YOUR_STREAM_CHANNEL<br>
-	ClientID = YOUR_CLIENT_ID
- * --------------------------------------------------
+	ClientID = YOUR_CLIENT_ID<br></code>
+ * --------------------------------------------------<br><br>
  * 
  * TODO: Move this loading of the ini file to another class, and make the ini file gloabaly accessible, since it is needed
  * in more than one place

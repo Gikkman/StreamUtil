@@ -39,8 +39,8 @@
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="txt_streamStatus" text="NOT CONNECTED" GridPane.columnIndex="1" />
-                  <TextField fx:id="txt_streamGame" text="NOT CONNECTED" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <TextField fx:id="txt_streamStatus" onAction="#titleFieldAction" text="NOT CONNECTED" GridPane.columnIndex="1" />
+                  <TextField fx:id="txt_streamGame" onAction="#gameFieldAction" text="NOT CONNECTED" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Button fx:id="btn_streamStatusApply" mnemonicParsing="false" onAction="#applyStreamStatus" prefHeight="50.0" text="Apply" GridPane.columnIndex="2" GridPane.rowSpan="2" />
                </children>
                <padding>

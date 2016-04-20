@@ -11,6 +11,8 @@ import com.gikk.streamutil.twitchApi.SimpleChannelHandler;
 import com.gikk.streamutil.twitchApi.SimpleChannelSubscriptionHandler;
 import com.gikk.streamutil.twitchApi.SimpleStreamHandler;
 import com.gikk.streamutil.twitchApi.TwitchApi;
+import com.gikk.streamutil.users.ObservableUser;
+import com.gikk.streamutil.users.UserManager;
 import com.mb3364.twitch.api.models.Channel;
 import com.mb3364.twitch.api.models.ChannelFollow;
 import com.mb3364.twitch.api.models.ChannelSubscription;
@@ -33,31 +35,37 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * number of followers and subs, latest follower and subs and more. It also allows the user to change the stream
  * title and game on Twitch.<br><br>
  * 
- * TODO: Add support for showing people online, and right click actions on them
+ * TODO: Add support for right click actions on people that are online
  * 
  * @author Simon
  *
  */
 public class StreamSettingsController extends _TabControllerBase{
+	//*************************************************************************************************************
+	//									VARIABLES
+	//*************************************************************************************************************
 	@FXML TextField txt_streamStatus;
 	@FXML TextField txt_streamGame;
 	@FXML Button btn_streamStatusApply;
 	@FXML Label lbl_viewerCount; 	@FXML Label lbl_followerCount; 	@FXML Label lbl_subscriberCount;
 	@FXML Label lbl_latestFollower; @FXML Label lbl_lastestSubscriber; @FXML Label lbl_alltimeViews;
 	
-	@FXML TableView<User> Tbl_UsersOnline;
-	private ObservableList<User> usersOnline;
+	@FXML TableView<ObservableUser> Tbl_UsersOnline;
+	private ObservableList<ObservableUser> usersOnline;
+	private TwitchApi api;
 	
 	private String onlineStreamStatus = "", onlineStreamGame = "", 	onlineFollowerCount = "", onlineSubCount = "",
 				   onlineViewCount = "", 	onlineAlltimeViewCount = "";
 	
-	private TwitchApi api;
 	
 	@Override
 	public int getWeight() {
 		return -1;
 	};
 	
+	//*************************************************************************************************************
+	//									INITIALIZER
+	//*************************************************************************************************************
 	@SuppressWarnings("unchecked")
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -66,14 +74,21 @@ public class StreamSettingsController extends _TabControllerBase{
 		//Fetch the online list from the UserManager. 
 		//First, add all currently online listed users to our visible list.
 		//Then, add a change listener, so we see when users are added or removed
-		//TODO: usersOnline = UserManager.GET().getUserOnlineList();
+		usersOnline = UserManager.get().getUserOnlineList();
 
 		Tbl_UsersOnline.getColumns().addAll( getColumns() );
 		Tbl_UsersOnline.setItems(usersOnline);
 		
 		RepeatedTask pollApiService = new PollApiService(api, this);
 		pollApiService.schedule(100, 15 * 1000 );	//Poll the api almost immediately, then once every 15 seconds
+		
+		//Make the button fire on ENTER strokes too
+		btn_streamStatusApply.defaultButtonProperty().bind(btn_streamStatusApply.focusedProperty());
 	}
+	
+	//*************************************************************************************************************
+	//									FXML METHODS
+	//*************************************************************************************************************
 	
 	@FXML protected void updateUsersOnline(){	
 		
@@ -81,7 +96,6 @@ public class StreamSettingsController extends _TabControllerBase{
 	
 	/**Pushes the current stream settings to Twitch. After the buttons been pushed, there is a delay until the button
 	 * reactivates again, so that the user doesn't spam Twitch with requests.
-	 * 
 	 */
 	@FXML protected void applyStreamStatus(ActionEvent e){
 		btn_streamStatusApply.setDisable(true);
@@ -94,6 +108,16 @@ public class StreamSettingsController extends _TabControllerBase{
 			}
 		};
 		t.schedule(15);
+		
+		txt_streamStatus.requestFocus();
+	}
+	
+	@FXML protected void titleFieldAction(ActionEvent e){
+		txt_streamGame.requestFocus();
+	}
+	
+	@FXML protected void gameFieldAction(ActionEvent e){
+		btn_streamStatusApply.requestFocus();
 	}
 	
 	/**************************************************************************************************
@@ -102,6 +126,9 @@ public class StreamSettingsController extends _TabControllerBase{
 	 * at different times, and sometimes only few of them will acutally be invoked. 
 	 * 
 	 **************************************************************************************************/
+	//************************************************************************************************** 
+	//									PRIVATE
+	//************************************************************************************************** 
 	private void setStatuses(String status, String game, String viewerCount, String alltimeViewCount){
 		Platform.runLater( () -> {
 			if( !onlineStreamStatus.matches(status) ){
@@ -156,28 +183,31 @@ public class StreamSettingsController extends _TabControllerBase{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TableColumn[] getColumns(){
-		TableColumn[] cols = new TableColumn[6];
+		TableColumn[] cols = new TableColumn[7];
 		
 		cols[0] = new TableColumn<User, String>("UserName");
 		cols[1] = new TableColumn<User, String>("Status");
-		cols[2] = new TableColumn<User, String>("Follower");
-		cols[3]	= new TableColumn<User, String>("Subscriber");
-		cols[4] = new TableColumn<User, Integer>("TimeOnline");
-		cols[5]	= new TableColumn<User, Integer>("LinesWritten");
+		cols[2] = new TableColumn<User, Boolean>("Follower");
+		cols[3]	= new TableColumn<User, Boolean>("Sub");
+		cols[4] = new TableColumn<User, Boolean>("Trusted");
+		cols[5] = new TableColumn<User, Integer>("Time");
+		cols[6]	= new TableColumn<User, Integer>("Lines");
 		
 		cols[0].setCellValueFactory( new PropertyValueFactory<User, String>("userName") );
 		cols[1].setCellValueFactory( new PropertyValueFactory<User, String>("status") );
-		cols[2].setCellValueFactory( new PropertyValueFactory<User, String>("follower") );
-		cols[3].setCellValueFactory( new PropertyValueFactory<User, String>("subscriber") );
-		cols[4].setCellValueFactory( new PropertyValueFactory<User, Integer>("timeOnline") );
-		cols[5].setCellValueFactory( new PropertyValueFactory<User, Integer>("linesWritten") );
+		cols[2].setCellValueFactory( new PropertyValueFactory<User, Boolean>("follower") );
+		cols[3].setCellValueFactory( new PropertyValueFactory<User, Boolean>("subscriber") );
+		cols[4].setCellValueFactory( new PropertyValueFactory<User, Boolean>("trusted") );
+		cols[5].setCellValueFactory( new PropertyValueFactory<User, Integer>("timeOnline") );
+		cols[6].setCellValueFactory( new PropertyValueFactory<User, Integer>("linesWritten") );
 		
-        cols[0].setPrefWidth(200); cols[0].setEditable(false);
-        cols[1].setPrefWidth(110); 
-		cols[2].setPrefWidth(80); 
-		cols[3].setPrefWidth(80); 
-		cols[4].setPrefWidth(80); 
-		cols[5].setPrefWidth(80); 
+        cols[0].setPrefWidth(190); cols[0].setEditable(false);
+        cols[1].setPrefWidth(110); cols[1].setEditable(false);
+		cols[2].setPrefWidth(60);  cols[2].setEditable(false);
+		cols[3].setPrefWidth(60);  cols[3].setEditable(false);
+		cols[4].setPrefWidth(60);  cols[4].setEditable(false);
+		cols[5].setPrefWidth(50);  cols[5].setEditable(false);
+		cols[5].setPrefWidth(50);  cols[6].setEditable(false);
 				
 		return cols;
 	}
