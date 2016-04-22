@@ -23,8 +23,7 @@ import com.gikk.streamutil.users.UserManager;
 	ClientID = YOUR_CLIENT_ID<br></code>
  * --------------------------------------------------<br><br>
  * 
- * TODO: Move this loading of the ini file to another class, and make the ini file gloabaly accessible, since it is needed
- * in more than one place
+ * TODO: Move this loading of the ini file to another class, and make the ini file gloabaly accessible, since it is needed in more than one place
  * 
  * @author Simon
  */
@@ -85,6 +84,10 @@ public class GikkBot{
 	
 	public void serverMessage(String text) {
 		irc.serverMessage(text);	
+	}
+	
+	public void onProgramExit(){
+		closeConnection();
 	}
 	
 	public void closeConnection() {

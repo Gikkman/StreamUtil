@@ -25,10 +25,6 @@ import javafx.beans.property.StringProperty;
  * now.<br>
  * <br>
  * 
- * TODO: Create a centralized ObservableUser dispatcher/cache, so that no more
- * than one instance of an ObservableUser can exist at the same time for an
- * underlying Users object. This would also allow for a more natural way of
- * using the NewUser method, which feels very of to have in this class.
  * 
  * @author Simon
  *
@@ -76,12 +72,6 @@ public class ObservableUser {
 		System.err.println("\tError! Unable to parse status " + status + " " + StackTrace.getStackPos());
 		return null;
 	}
-
-	public static ObservableUser addNewUser(String userName) {
-		// TODO: Create new user
-		return null;
-	}
-
 	// ***********************************************************
 	// CONSTRUCTORS
 	// ***********************************************************

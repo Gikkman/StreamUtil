@@ -49,8 +49,7 @@ public class UserManager {
 	// ***********************************************************	
 	private UserManager(){
 		Speedment speedment = new GikkStreamUtilApplication().build();
-        userDatabase = speedment.managerOf(User.class);
-        
+        userDatabase = speedment.managerOf(User.class);  
 	}
 	
 	// ***********************************************************
@@ -201,8 +200,6 @@ public class UserManager {
                 .setLinesWritten(0)
                 .setTimeOnline(0)
                 .persist();
-
-            //TODO: Load the appropriate ID from the database on creation
                 
             System.out.println("Added nr. " + user.getId() +", "
             		+ "Name: " 		  	+ user.getUsername() + ", "

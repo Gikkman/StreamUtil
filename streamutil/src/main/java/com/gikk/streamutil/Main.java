@@ -1,15 +1,9 @@
 package com.gikk.streamutil;
 
 import java.net.URISyntaxException;
-import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
-import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
 import com.gikk.streamutil.irc.GikkBot;
 import com.gikk.streamutil.task.Scheduler;
 import com.gikk.streamutil.users.UserManager;
-import com.speedment.Speedment;
-import com.speedment.exception.SpeedmentException;
-import com.speedment.manager.Manager;
-
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -27,10 +21,7 @@ public class Main extends Application{
 	@FXML TextField txt_field;
 	@FXML TextField txt_field2;
 	
-	private static GikkBot bot;
-	
 	public void start(Stage primaryStage) throws URISyntaxException {
-		bot = GikkBot.GET();
 		
 		// Get current classloader
 		ClassLoader cl = this.getClass().getClassLoader();
@@ -41,7 +32,8 @@ public class Main extends Application{
 			
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest( (e) -> {
-				bot.closeConnection();
+				//TODO: Consider this: Should we use a MethodMapper instead of this?
+				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
 				UserManager.GET().onProgramExit();
 			} );
@@ -50,21 +42,30 @@ public class Main extends Application{
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-        
-        System.out.println();
-        
-        
 	}
 	
 	public static void main(String[] args) {
+		//TODO: If FirsTime, do InitChain
+		
+		//A very ugly way of making sure the Singletons work and are initiated
+		try{ 
+			GikkBot.GET(); 
+			UserManager.GET();
+			Scheduler.GET();
+		}
+		catch( Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}		
+		
 		launch(args);
 	}
 	
 	@FXML protected void onClick(ActionEvent e){
-		bot.channelMessage( txt_field.getText() );
+		GikkBot.GET().channelMessage( txt_field.getText() );
 	}
 	
 	@FXML protected void onClick2(ActionEvent e){
-		bot.serverMessage( txt_field2.getText() );
+		GikkBot.GET().serverMessage( txt_field2.getText() );
 	}
 }

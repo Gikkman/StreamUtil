@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 import com.gikk.streamutil.gui.tabs._TabControllerBase;

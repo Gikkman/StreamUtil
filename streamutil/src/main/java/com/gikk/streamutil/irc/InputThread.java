@@ -70,7 +70,8 @@ class InputThread extends Thread{
             	e.printStackTrace();
             }
         }
-		//If we have been disconnected, we close the connection and clean up the resources held by the IrcConnection
+		//If we have been disconnected, we close the connection and clean up the resources held by the IrcConnection.
+        //The conncetion might already have been closed, but that is not a problem
 		connection.closeConnection();
 	}
 

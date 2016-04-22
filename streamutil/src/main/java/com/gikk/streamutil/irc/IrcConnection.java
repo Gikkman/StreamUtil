@@ -52,7 +52,9 @@ class IrcConnection {
     	try {
 			prop.load(file);
 		} catch (ConfigurationException e1) {
+			//TODO: Handle this error better
 			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your User/ folder");
+			System.exit(-1);
 		}
     	
         // Fecth settings from our properties file
@@ -81,9 +83,7 @@ class IrcConnection {
 		
 		this.queue 	   = new OutputQueue();
 		this.outThread = new OutputThread(this, queue, reader, writer);
-		this.inThread  = new InputThread(this, reader, writer);
-		
-		
+		this.inThread  = new InputThread(this, reader, writer);	
     }
     
 	//***********************************************************************************************
@@ -148,7 +148,8 @@ class IrcConnection {
 	    	System.err.println("\tAlready connected to a server!");
 	    	return;
     	}    		
-    		
+    	
+    	//TODO: This should be handled differently. Consider making this actually throw the errors that might occur.
     	isConnected = doConnect();
     	isJoined    = doJoin();
     	
@@ -222,6 +223,7 @@ class IrcConnection {
 			        System.out.println("Nickname is already in use.");
 			        return false;
 			    }
+			    //TODO: Other error codes
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

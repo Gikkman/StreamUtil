@@ -51,7 +51,11 @@ class OutputThread extends Thread{
         		isConnected = connection.isConnected();	
         	}        	
         	try { Thread.sleep(MESSAGE_GAP_MILLIS); } 
-        	catch (InterruptedException e) { /* Being interrupted probably means that we are about to shut down */ }
+        	catch (InterruptedException e) { 
+        		/* Being interrupted probably means that we are about to shut down.
+        		 * If we are about to close down, isConnected will be set to false so we can just go back
+        		 * to the loop and automatically terminate from there.  */ 
+    		}
         }
     }
 	
@@ -75,13 +79,12 @@ class OutputThread extends Thread{
 		queue.addFirst(message);
 	}
 	
-	/**Circumvents the message queue completely and attempts to send the message at one. Should only be used for sending
+	/**Circumvents the message queue completely and attempts to send the message at once. Should only be used for sending
 	 * PING responses.
 	 * 
 	 * @param message
 	 */
 	public void quickSend(String message) {
-		//TODO: Make sure that this is really thread safe...
 		sendLine(message);		
 	}
 	
