@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.mysql.fabric.xmlrpc.base.Array;
-
 /**Had to write my own IRC connection class since there were no libraries that were up to date and applicable with
  * Appache v2 license.
  * 
@@ -35,7 +33,7 @@ class IrcConnection {
 	private final InputThread inThread;
 	private final OutputQueue queue;
 	
-	private final ArrayList<IrcListeners> listeners = new ArrayList<>();
+	private final ArrayList<IrcListener> listeners = new ArrayList<>();
 	
 	private boolean isConnected = false;
 	private boolean isJoined    = false;
@@ -66,7 +64,7 @@ class IrcConnection {
         
         try{
         	socket = new Socket(server, port);
-        	socket.setSoTimeout(120 * 1000); //Set a timeout for connection to 30 seconds
+        	socket.setSoTimeout(120 * 1000); //Set a timeout for connection to 120 seconds
         } catch (Exception e){
         	e.printStackTrace();
         }
@@ -84,6 +82,8 @@ class IrcConnection {
 		this.queue 	   = new OutputQueue();
 		this.outThread = new OutputThread(this, queue, reader, writer);
 		this.inThread  = new InputThread(this, reader, writer);
+		
+		
     }
     
 	//***********************************************************************************************
@@ -124,6 +124,19 @@ class IrcConnection {
 	
 	public String getServerName(){
 		return serverName;
+	}
+	
+	public void addIrcListener(IrcListener listener){
+		this.listeners.add(listener);
+	}
+	
+	/**Removes a specific listener from the list of active listeners
+	 * 
+	 * @param listener Listener to be removed
+	 * @return <code>true</code> if the listener was removed
+	 */
+	public boolean removeIrcListener(IrcListener listener){
+		return this.listeners.remove(listener);
 	}
         
     /**Connects to the Twitch server and joins the appropriate channel.
@@ -181,7 +194,7 @@ class IrcConnection {
 	}
 	
 	//***********************************************************************************************
-	//											PRIVATE
+	//										PRIVATE and PACKAGE
 	//***********************************************************************************************	
 	private boolean doConnect(){
 		// Log on to the server.
@@ -229,16 +242,67 @@ class IrcConnection {
     }
     
 	void incommingMessage(String line){
-		IrcMessage message = new IrcMessage(line);
+		IrcMessage message	= new IrcMessage(line);
+		boolean wasPing 	= false;
 		
-		if (message.sender.equalsIgnoreCase("PING") ||  message.command.equalsIgnoreCase("PING")) {
-	        // We must respond to PINGs to avoid being disconnected.
-    		//
+		//PING is a bit strange, so we need to handle it separately. And also, we want to respond to a ping
+		//before we do anything else.
+		if (message.getPrefix().equalsIgnoreCase("PING") ||  message.getCommand().equalsIgnoreCase("PING")) {
+
     		// A PING contains the message "PING MESSAGE", and we want to reply with MESSAGE as well
     		// Hence, we reply "PONG MESSAGE" . That's where the substring(5) comes from bellow, we strip
     		//out everything but the message
-    		serverMessage("PONG :" + message.content != "" ? message.content : message.command );
-    		serverMessage("PRIVMSG " + getChannel() + " :We got pinged!");
-		} 
+    		serverMessage("PONG :" + message.getContent() != "" ? message.getContent() : message.getCommand() );
+    		channelMessage("We got pinged!");
+    		
+    		wasPing = true;
+		}
+		
+		//Call all the appropriate listeners for the given message.
+		//
+		//First, we call all onAnything messages
+		for(IrcListener l : listeners )
+			l.onAnything(message);
+		
+		//If this was a ping, we don't have to do anything more
+		if( wasPing )
+			return;
+		
+		if( message.getCommand().matches("[0-9]+") ){
+			//TODO: Implement different codes
+			return;
+		}
+		
+		//Check for message types that are sent by a user
+		//TODO: Implement other message types. These are only the ones used by Twitch
+		IrcUser user = IrcUser.create( message );
+		if( user != null)
+			switch( message.getCommand().toUpperCase() ) {
+			case "PRIVMSG":
+				for(IrcListener l : listeners )
+					l.onPrivMsg(user, message);
+				return;
+				
+			case "WHISPER":
+				for(IrcListener l : listeners )
+					l.onWhisper(user, message);
+				return;
+				
+			case "JOIN":
+				for(IrcListener l : listeners )
+					l.onJoin( user );
+				return;
+				
+			case "PART":
+				for(IrcListener l : listeners )
+					l.onPart( user );
+				return;
+				
+			default:
+			}
+		
+		//If we've gotten all the way down here, we don't know this message's type
+		for(IrcListener l : listeners )
+			l.onUnknown(message);
 	}
 }

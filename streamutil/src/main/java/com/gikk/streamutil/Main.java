@@ -5,6 +5,7 @@ import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
 import com.gikk.streamutil.irc.GikkBot;
 import com.gikk.streamutil.task.Scheduler;
+import com.gikk.streamutil.users.UserManager;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
 import com.speedment.manager.Manager;
@@ -29,7 +30,7 @@ public class Main extends Application{
 	private static GikkBot bot;
 	
 	public void start(Stage primaryStage) throws URISyntaxException {
-		bot = new GikkBot();
+		bot = GikkBot.GET();
 		
 		// Get current classloader
 		ClassLoader cl = this.getClass().getClassLoader();
@@ -42,6 +43,7 @@ public class Main extends Application{
 			primaryStage.setOnCloseRequest( (e) -> {
 				bot.closeConnection();
 				Scheduler.GET().onProgramExit();
+				UserManager.GET().onProgramExit();
 			} );
 			
 			primaryStage.show();
@@ -64,42 +66,5 @@ public class Main extends Application{
 	
 	@FXML protected void onClick2(ActionEvent e){
 		bot.serverMessage( txt_field2.getText() );
-	}
-	
-	//TODO: Find a way to incorporate this....
-	private void addUser(String name){
-		Speedment speedment = new GikkStreamUtilApplication().build();
-        Manager<User> users = speedment.managerOf(User.class);
-        
-        final String lcName = name.toLowerCase();
-        
-        if( users.stream().parallel().filter( p -> p.getUsername().matches(lcName) ).count() > 0 ){
-        	System.out.println("User already present");
-        	return;
-        }
-        
-		Thread t = new Thread( () -> {
-	        try {
-	            User user = users.newEmptyEntity()
-	                .setUsername(lcName)
-	                .setIsFollower(false)
-	                .setIsSubscriber(false)
-	                .setIsTrusted(false)
-	                .setLinesWritten(0)
-	                .setTimeOnline(0)
-	                .persist();
-	                
-	            System.out.print("Hello nr. " + user.getId() +", "
-	            		+ "Name: " 		  	+ user.getUsername() + ", "
-	            		+ "Time online: " 	+ user.getTimeOnline() +", "
-	            		+ "Lines written: " + user.getLinesWritten() +", "
-	            		+ "Is trusted: " 	+ user.getIsTrusted() +", "
-	            		+ "Is follower: " 	+ user.getIsFollower() +", "
-	            		+ "Is subscriber: " + user.getIsSubscriber() );
-	        } catch (SpeedmentException se) {
-	           System.out.println("Why are you so persistant?");
-	           System.err.println( se.getLocalizedMessage() );
-	        } } );
-        t.start();
 	}
 }

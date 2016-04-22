@@ -40,7 +40,7 @@ public class ObservableUser {
 
 	private static final String REGULAR = "regular", MODERATOR = "moderator", ADMIN = "admin";
 
-	private final User user;
+	private User user;
 	private final SimpleStringProperty userName = new SimpleStringProperty();
 	private final SimpleStringProperty status = new SimpleStringProperty(REGULAR);
 	private final SimpleIntegerProperty timeOnline = new SimpleIntegerProperty(0);
@@ -130,7 +130,7 @@ public class ObservableUser {
 		return subscriber.getValue();
 	}
 	
-	public void setIsSubscriber(Boolean subscriber){
+	public void setSubscriber(Boolean subscriber){
 		this.user.setIsSubscriber(subscriber);
 		this.subscriber.setValue(subscriber);
 	}
@@ -223,5 +223,9 @@ public class ObservableUser {
 
 	public BooleanProperty subscriberProperty() {
 		return subscriber;
+	}
+
+	void updateUnderlyingDatabaseObject(){
+		this.user = this.user.update();
 	}
 }

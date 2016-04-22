@@ -77,7 +77,7 @@ public class GeneratedGikkStreamUtilApplicationMetadata implements ApplicationMe
         METADATA.append("                    \"typeMapper\": \"com.speedment.config.db.mapper.identity.IntegerIdentityMapper\",\n");
         METADATA.append("                    \"expanded\": true,\n");
         METADATA.append("                    \"nullable\": false,\n");
-        METADATA.append("                    \"autoIncrement\": false,\n");
+        METADATA.append("                    \"autoIncrement\": true,\n");
         METADATA.append("                    \"name\": \"ID\",\n");
         METADATA.append("                    \"ordinalPosition\": 1.0,\n");
         METADATA.append("                    \"enabled\": true\n");
@@ -117,6 +117,7 @@ public class GeneratedGikkStreamUtilApplicationMetadata implements ApplicationMe
         METADATA.append("                    \"typeMapper\": \"com.speedment.config.db.mapper.identity.IntegerIdentityMapper\",\n");
         METADATA.append("                    \"expanded\": true,\n");
         METADATA.append("                    \"nullable\": false,\n");
+        METADATA.append("                    \"autoIncrement\": false,\n");
         METADATA.append("                    \"name\": \"LINES_WRITTEN\",\n");
         METADATA.append("                    \"ordinalPosition\": 5.0,\n");
         METADATA.append("                    \"enabled\": true\n");

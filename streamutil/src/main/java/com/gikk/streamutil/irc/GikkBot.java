@@ -3,8 +3,12 @@ package com.gikk.streamutil.irc;
 import java.io.File;
 import java.nio.file.Paths;
 
+import com.gikk.streamutil.users.UserManager;
 
-/**Class that allows for easy use of the underlying IRC connection. The IRC bot loads all its setting from
+
+/**<b>SINGLETON</b><br><br>
+ * 
+ * Class that allows for easy use of the underlying IRC connection. The IRC bot loads all its setting from
  * a file named 'gikk.ini' located in the user's home directory. <br><br>
  * 
  * The file should contain the following fields:<br>
@@ -28,26 +32,34 @@ public class GikkBot{
 	//***********************************************************************************************
 	//											VARIABLES
 	//***********************************************************************************************
+	private static class HOLDER { static final GikkBot INSTANCE = new GikkBot(); };
 	enum Capacity {MEMBERS, COMMANDS, TAGS};
 	
 	private final IrcConnection irc;
 	
+	
+	//***********************************************************************************************
+	//											STATIC
+	//***********************************************************************************************
+	public static GikkBot GET(){
+		return HOLDER.INSTANCE;
+	}
+	
 	//***********************************************************************************************
 	//											CONSTRUCTOR
 	//***********************************************************************************************
-	public GikkBot() {
+	private GikkBot() {
 		
 		//Load the bots settings from a file named "pirc.ini" located in the users Home folder.
 		//In case we fail to connect, we retry 
-
 		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
 		irc = new IrcConnection(file);
+		
+		irc.addIrcListener( new MyIrcListener() );
+		
 		irc.connect();
-
 		addCapacity(Capacity.MEMBERS);
 		addCapacity(Capacity.COMMANDS);
-		
-				
 	}
 	
 	//***********************************************************************************************
@@ -55,6 +67,8 @@ public class GikkBot{
 	//***********************************************************************************************
 	public void channelMessage(String message){
 		irc.channelMessage(message);
+		//Remember to update the number of line our bot's written :-)
+		UserManager.GET().incrementWrittenRows( irc.getNick() , 1);
 	}
 	
 	public void clearChat(){
@@ -91,6 +105,31 @@ public class GikkBot{
 		case TAGS:
 			irc.serverMessage("CAP REQ :twitch.tv/tags");
 			break;
+		}
+	}
+	
+	private class MyIrcListener implements IrcListener {
+		@Override
+		public void onAnything(IrcMessage message) {
+			System.out.println("IN  " + message.getLine());
+		}			
+		@Override
+		public void onWhisper(IrcUser user, IrcMessage message) {
+			System.out.println("\t" + user.getNick() +" thinks I'm special <3");	
+		}			
+		@Override
+		public void onPrivMsg(IrcUser user, IrcMessage message) {
+			UserManager.GET().incrementWrittenRows( user.getNick() , 1);
+		}			
+		@Override
+		public void onPart(IrcUser user) {
+			UserManager.GET().partUser( user.getNick() );
+			
+		}			
+		@Override
+		public void onJoin(IrcUser user) {
+			UserManager.GET().joinUser( user.getNick() );
+			
 		}
 	}
 }

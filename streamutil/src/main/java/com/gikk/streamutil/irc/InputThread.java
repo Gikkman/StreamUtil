@@ -41,23 +41,29 @@ class InputThread extends Thread{
             try {
                 String line = null;
                 while ( (line = reader.readLine()) != null ) {
-                	//print what we got
-                	System.out.println("IN  " + line);
                 	
-                	connection.incommingMessage(line);
+                	try{
+	                	//TODO: Concider maybe doing this on a separate thread. So if something messes up, we don't crash...
+	                	connection.incommingMessage(line);
+                	} catch (Exception e) {
+                		System.err.println("Error in handling the incomming Irc Message");
+                		e.printStackTrace();
+                	}
                 }
                 //If we reach this line, it means the line was null. That only happens if the end of the stream's been reached
                 isConnected = false;
             }
             catch (SocketTimeoutException e){
             	//If we time out, that means we haven't seen anything from server in a while, so we ping it
-            	connection.serverMessage("PING " + System.currentTimeMillis());
+            	connection.serverMessage("PING :" + System.currentTimeMillis());
             }
             catch (SocketException e) {
             	//This probably means we force closed the socket. If the message is not "Socket closed", something else
             	//happened.
-            	if( !(e.getMessage().indexOf("Socket Closed") >= 0) )
+            	if( !(e.getMessage().indexOf("Socket Closed") >= 0) ){
             		e.printStackTrace();
+            		isConnected = false;
+            	}
 			}
             catch (IOException e) {
             	//Apparently, something went wrong with our line reading...	

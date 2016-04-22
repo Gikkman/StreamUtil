@@ -56,7 +56,7 @@
                     "typeMapper": "com.speedment.config.db.mapper.identity.IntegerIdentityMapper",
                     "expanded": true,
                     "nullable": false,
-                    "autoIncrement": false,
+                    "autoIncrement": true,
                     "name": "ID",
                     "ordinalPosition": 1.0,
                     "enabled": true
@@ -96,6 +96,7 @@
                     "typeMapper": "com.speedment.config.db.mapper.identity.IntegerIdentityMapper",
                     "expanded": true,
                     "nullable": false,
+                    "autoIncrement": false,
                     "name": "LINES_WRITTEN",
                     "ordinalPosition": 5.0,
                     "enabled": true

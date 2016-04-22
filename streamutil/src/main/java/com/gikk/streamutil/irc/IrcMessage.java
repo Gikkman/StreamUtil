@@ -4,8 +4,8 @@ public class IrcMessage {
 	//***********************************************************
 	// 				VARIABLES
 	//***********************************************************
-	int senderLenght = -1, commandLength = -1, targetLenght = -1, contenctLenght = -1;
-	String sender = "", command = "", target = "", content = "";
+	private int prefixLenght = -1, commandLength = -1, targetLenght = -1, contenctLenght = -1;
+	private final String line, prefix, command, target, content;
 	
 	//***********************************************************
 	// 				STATIC
@@ -15,37 +15,72 @@ public class IrcMessage {
 	// 				CONSTRUCTOR
 	//***********************************************************	
 	public IrcMessage(String line){
+		this.line = line;
 		String[] parts = line.split(" ", 4);
 		
 		if( parts.length == 4) {
 			content = parts[3];
 			contenctLenght = parts[3].length();
+		} else {
+			content = "";
 		}
 		if( parts.length >= 3) {
 			target = parts[2];
 			targetLenght = parts[2].length();
+		}else {
+			target = "";
 		}
 		if( parts.length >= 2) {
 			command = parts[1];
 			commandLength = parts[1].length();
+		}else {
+			command = "";
 		}
 		if( parts.length >= 1) {
-			sender = parts[0];
-			senderLenght = parts[0].length();
+			prefix = parts[0];
+			prefixLenght = parts[0].length();
+		}else {
+			prefix = "";
 		}
 	}
 	
 	//***********************************************************
 	// 				PUBLIC
 	//***********************************************************	
-	public String getNick(){
-		return sender.substring( (sender.charAt(0) == ':') ? 1 : 0, sender.indexOf("!") );
+	public String getLine(){
+		return line;
 	}
-	public String getName(){
-		return sender.substring( sender.indexOf("!"+1), sender.indexOf("@") ) ;
+	
+	public int getPrefixLenght() {
+		return prefixLenght;
 	}
-	public String getHost(){
-		return sender.substring( sender.indexOf("@"+1), sender.length() );
+	
+	public int getCommandLength() {
+		return commandLength;
+	}
+
+	public int getTargetLenght() {
+		return targetLenght;
+	}
+
+	public int getContenctLenght() {
+		return contenctLenght;
+	}
+
+	public String getPrefix() {
+		return prefix;
+	}
+
+	public String getCommand() {
+		return command;
+	}
+
+	public String getTarget() {
+		return target;
+	}
+
+	public String getContent() {
+		return content;
 	}
 	
 	//***********************************************************

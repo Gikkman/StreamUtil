@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
 import com.gikk.streamutil.gui.tabs._TabControllerBase;
@@ -26,14 +27,14 @@ import javafx.scene.control.TabPane;
  *
  */
 public class TabContainerController implements Initializable{
+	private static final String DIRECTORY = "tabs/";
 	@FXML TabPane tab_pane;
 	
 	@Override
 	public void initialize(URL location, ResourceBundle resources){
 		 try {
 			//First, we fetch all files from the tabs folder and store them in the fxmlFiles array list
-			ClassLoader cl = this.getClass().getClassLoader();
-			String DIRECTORY = "tabs/";
+			ClassLoader cl = this.getClass().getClassLoader();		
 			ArrayList<String> fxmlFiles = new ArrayList<>();
 			URL path = this.getClass().getClassLoader().getResource(DIRECTORY);
 			File dir = new File(path.toURI());

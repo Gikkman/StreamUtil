@@ -74,13 +74,13 @@ public class StreamSettingsController extends _TabControllerBase{
 		//Fetch the online list from the UserManager. 
 		//First, add all currently online listed users to our visible list.
 		//Then, add a change listener, so we see when users are added or removed
-		usersOnline = UserManager.get().getUserOnlineList();
+		usersOnline = UserManager.GET().getUserOnlineList();
 
 		Tbl_UsersOnline.getColumns().addAll( getColumns() );
 		Tbl_UsersOnline.setItems(usersOnline);
 		
 		RepeatedTask pollApiService = new PollApiService(api, this);
-		pollApiService.schedule(100, 15 * 1000 );	//Poll the api almost immediately, then once every 15 seconds
+		pollApiService.schedule(100, 55 * 1000 );	//Poll the api almost immediately, then once every 55 seconds
 		
 		//Make the button fire on ENTER strokes too
 		btn_streamStatusApply.defaultButtonProperty().bind(btn_streamStatusApply.focusedProperty());

@@ -11,6 +11,6 @@ import com.gikk.streamutil.task.RepeatedTask;
 public class IncrementOnlinetimeTask extends RepeatedTask{
 	@Override
 	public void onExecute() {
-		UserManager.get().incrementUsersOnlinetime(1);	//Add one minute to all users that are online
+		UserManager.GET().incrementUsersOnlinetime(1);	//Add one minute to all users that are online
 	}
 }

@@ -118,11 +118,11 @@ class OutputThread extends Thread{
 		}		
 		
 		try{
+			System.out.println("OUT " + message);
 			synchronized (writer) {		
 				writer.write(message + "\r\n");
 				writer.flush();
 			}
-			System.out.println("OUT " + message);
 		} catch (IOException e){
 			e.printStackTrace();
 		}

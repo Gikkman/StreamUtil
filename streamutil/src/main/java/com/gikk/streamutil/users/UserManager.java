@@ -40,7 +40,7 @@ public class UserManager {
 	// ***********************************************************
 	// 				STATIC
 	// ***********************************************************
-	public static UserManager get(){
+	public static UserManager GET(){
 		return HOLDER.INSTANCE;
 	}
 	
@@ -50,6 +50,7 @@ public class UserManager {
 	private UserManager(){
 		Speedment speedment = new GikkStreamUtilApplication().build();
         userDatabase = speedment.managerOf(User.class);
+        
 	}
 	
 	// ***********************************************************
@@ -104,6 +105,20 @@ public class UserManager {
 		for(String user : presentUsers)
 			joinUser(user);
 	}
+	
+	public void partUser(String user) {
+		ObservableUser u = retreiveUser(user );
+		Platform.runLater( () -> {
+			usersOnline.remove(u);
+		});
+	}	
+	
+	public void joinUser(String user) {
+		ObservableUser u = retreiveUser(user);
+		Platform.runLater( () -> { 
+			usersOnline.add(u);
+		});		
+	}
 
 	public synchronized void resetDatabase() {
 		userCache.clear();
@@ -112,23 +127,14 @@ public class UserManager {
 			usersOnline.clear();
 		} );
 	}
+	
+	public synchronized void onProgramExit(){
+		flushUsers();
+	}
 
 	// ***********************************************************
 	// 				PRIVATE
 	// ***********************************************************	
-	private void partUser(String user) {
-		ObservableUser u = retreiveUser(user);
-		Platform.runLater( () -> {
-			usersOnline.remove(u);
-		});
-	}	
-	
-	private void joinUser(String user) {
-		ObservableUser u = retreiveUser(user);
-		Platform.runLater( () -> { 
-			usersOnline.add(u);
-		});		
-	}
 	
 	/**Either fetches the ObservebleUser for this user name from the cache, or creates
 	 * a new User in the underlying database and returns a ObservableUser wrapping the 
@@ -138,13 +144,15 @@ public class UserManager {
 	 * @return
 	 */
 	private ObservableUser retreiveUser (String userName){
-		ObservableUser oUser = userCache.get(userName);
+		String name = userName.toLowerCase();
+		
+		ObservableUser oUser = userCache.get(name);
 		if( oUser == null ){
-			oUser = fetchUserFromDatabase(userName);
+			oUser = fetchUserFromDatabase(name);
 			if( oUser == null ){
-				oUser = createNewUserInDatabase( userName );			
+				oUser = createNewUserInDatabase(name);			
 			}
-			userCache.put(userName, oUser);	
+			userCache.put(name, oUser);	
 		}
 		return oUser;
 	}
@@ -152,9 +160,17 @@ public class UserManager {
 	//*********************************************************************************
 	//			DATABASE ACCESSORS
 	//*********************************************************************************
+	private synchronized void flushUsers(){
+		userCache.values().stream().forEach( 
+				p -> p.updateUnderlyingDatabaseObject()
+		);
+	}
+	
 	private synchronized boolean isUserKnown(String userName) {
+		String name = userName.toLowerCase();
+		
 		return userDatabase.stream().parallel()
-					.filter( User.USERNAME.equal(userName) )
+					.filter( User.USERNAME.equal(name) )
 					.count() > 0;
 	}
 	
@@ -173,10 +189,11 @@ public class UserManager {
 	 * @return An ObservableUser, wrapping the underlying User
 	 */
 	private synchronized ObservableUser createNewUserInDatabase(String userName){
+		String name = userName.toLowerCase();
 		User user = null;
 		try {
             user = userDatabase.newEmptyEntity()
-                .setUsername(userName)
+                .setUsername(name)
                 .setStatus( ObservableUser.parseStatus( ObservableUser.Status.Regular) ) //Really messy way to write "Regular"
                 .setIsFollower(false)
                 .setIsSubscriber(false)
@@ -184,8 +201,10 @@ public class UserManager {
                 .setLinesWritten(0)
                 .setTimeOnline(0)
                 .persist();
+
+            //TODO: Load the appropriate ID from the database on creation
                 
-            System.out.print("Added nr. " + user.getId() +", "
+            System.out.println("Added nr. " + user.getId() +", "
             		+ "Name: " 		  	+ user.getUsername() + ", "
             		+ "Time online: " 	+ user.getTimeOnline() +", "
             		+ "Lines written: " + user.getLinesWritten() +", "
@@ -207,8 +226,9 @@ public class UserManager {
 	 * @return A ObservableUser-object, representing that user, on NULL, if the user doesn't exist
 	 */
 	private synchronized ObservableUser fetchUserFromDatabase(String userName){
+		String name = userName.toLowerCase();
 		Optional<User> opt = userDatabase.stream().parallel()
-						.filter( User.USERNAME.equal(userName) )
+						.filter( User.USERNAME.equal(name) )
 						.findFirst();
 		
 		if( opt.isPresent() )
