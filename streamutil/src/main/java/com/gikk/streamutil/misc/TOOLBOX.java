@@ -1,4 +1,4 @@
-package com.gikk.streamutil.gui;
+package com.gikk.streamutil.misc;
 
 import java.util.prefs.Preferences;
 
@@ -11,13 +11,13 @@ import javafx.stage.Stage;
  * 
  * @author Simon
  */
-public class _AUX {
+public class TOOLBOX {
 	public static void applyCss(Scene scene){
 		scene.getStylesheets().add( Main.class.getResource("application.css").toExternalForm());
 	}
 	
 	public static void saveWindowPos(Stage stage, String windowName){
-		Preferences prefs = Preferences.userNodeForPackage( _AUX.class );		
+		Preferences prefs = Preferences.userNodeForPackage( TOOLBOX.class );		
 		prefs.putDouble(windowName + "xPos", 	stage.getX() );
     	prefs.putDouble(windowName + "yPos", 	stage.getY() );
     	prefs.putDouble(windowName + "width", 	stage.getWidth() );
@@ -25,7 +25,7 @@ public class _AUX {
 	}
 	
 	public static void loadWindowPos(Stage stage, String windowName){
-		Preferences prefs = Preferences.userNodeForPackage( _AUX.class );	
+		Preferences prefs = Preferences.userNodeForPackage( TOOLBOX.class );	
 		stage.setX( 	prefs.getDouble(windowName + "xPos",	stage.getX() ));
 		stage.setY( 	prefs.getDouble(windowName + "yPos", 	stage.getY() ));
 		stage.setWidth( prefs.getDouble(windowName + "width", 	stage.getWidth() ));

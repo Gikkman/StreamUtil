@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import com.gikk.streamutil.GikkBot;
 import com.gikk.streamutil.task.OneTimeTask;
 import com.gikk.streamutil.task.RepeatedTask;
 import com.gikk.streamutil.twitchApi.SimpleChannelFollowerHandler;
@@ -12,7 +13,6 @@ import com.gikk.streamutil.twitchApi.SimpleChannelSubscriptionHandler;
 import com.gikk.streamutil.twitchApi.SimpleStreamHandler;
 import com.gikk.streamutil.twitchApi.TwitchApi;
 import com.gikk.streamutil.users.ObservableUser;
-import com.gikk.streamutil.users.UserManager;
 import com.mb3364.twitch.api.models.Channel;
 import com.mb3364.twitch.api.models.ChannelFollow;
 import com.mb3364.twitch.api.models.ChannelSubscription;
@@ -74,7 +74,7 @@ public class StreamSettingsController extends _TabControllerBase{
 		//Fetch the online list from the UserManager. 
 		//First, add all currently online listed users to our visible list.
 		//Then, add a change listener, so we see when users are added or removed
-		usersOnline = UserManager.GET().getUserOnlineList();
+		usersOnline = GikkBot.GET().getUsersOnlineList();
 
 		Tbl_UsersOnline.getColumns().addAll( getColumns() );
 		Tbl_UsersOnline.setItems(usersOnline);
@@ -107,7 +107,7 @@ public class StreamSettingsController extends _TabControllerBase{
 				btn_streamStatusApply.setDisable(false);
 			}
 		};
-		t.schedule(15);
+		t.schedule(5 * 1000);
 		
 		txt_streamStatus.requestFocus();
 	}
@@ -201,13 +201,13 @@ public class StreamSettingsController extends _TabControllerBase{
 		cols[5].setCellValueFactory( new PropertyValueFactory<User, Integer>("timeOnline") );
 		cols[6].setCellValueFactory( new PropertyValueFactory<User, Integer>("linesWritten") );
 		
-        cols[0].setPrefWidth(190); cols[0].setEditable(false);
-        cols[1].setPrefWidth(110); cols[1].setEditable(false);
-		cols[2].setPrefWidth(60);  cols[2].setEditable(false);
-		cols[3].setPrefWidth(60);  cols[3].setEditable(false);
-		cols[4].setPrefWidth(60);  cols[4].setEditable(false);
-		cols[5].setPrefWidth(50);  cols[5].setEditable(false);
-		cols[5].setPrefWidth(50);  cols[6].setEditable(false);
+        cols[0].setPrefWidth(200); cols[0].setEditable(false); 
+        cols[1].setPrefWidth(110); cols[1].setEditable(false); cols[1].getStyleClass().add( "center-align" );
+		cols[2].setPrefWidth(60);  cols[2].setEditable(false); cols[2].getStyleClass().add( "center-align" );  
+		cols[3].setPrefWidth(60);  cols[3].setEditable(false); cols[3].getStyleClass().add( "center-align" );  
+		cols[4].setPrefWidth(60);  cols[4].setEditable(false); cols[4].getStyleClass().add( "center-align" );  
+		cols[5].setPrefWidth(60);  cols[5].setEditable(false); cols[5].getStyleClass().add( "center-align" );  
+		cols[6].setPrefWidth(60);  cols[6].setEditable(false); cols[6].getStyleClass().add( "center-align" );  
 				
 		return cols;
 	}

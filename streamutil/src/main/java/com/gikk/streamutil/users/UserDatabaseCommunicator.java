@@ -1,6 +1,7 @@
 package com.gikk.streamutil.users;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -12,42 +13,27 @@ import com.speedment.exception.SpeedmentException;
 import com.speedment.manager.Manager;
 
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
-/**<b>Singleton</b><br><br>
- * 
- * This class handles all communication with the underlying database (I'm not sure if this is the correct pattern
+/**This class handles all communication with the underlying database (I'm not sure if this is the correct pattern
  * for using Speedment, but due to old habbits I prefere to wrap access to the DB). <br>
  * It also keeps tracks of all users that are currently online in the Twitch channel, by listening for JOIN/PART
  * messages from the IrcConnection.
  * 
- *TODO: Split this into two classes (one for DB communication and one for keeping track of users online).
  * 
  * @author Simon
  *
  */
-public class UserManager {
+public class UserDatabaseCommunicator {
 	// ***********************************************************
 	// 				VARIABLES
-	// ***********************************************************
-	private static class HOLDER {	static final UserManager INSTANCE = new UserManager();	 }
-	
-	private final ObservableList<ObservableUser> usersOnline =  FXCollections.observableArrayList();	
+	// ***********************************************************	
 	private final HashMap<String, ObservableUser> userCache = new HashMap<>(); 
 	private final Manager<User> userDatabase;
 	
 	// ***********************************************************
-	// 				STATIC
-	// ***********************************************************
-	public static UserManager GET(){
-		return HOLDER.INSTANCE;
-	}
-	
-	// ***********************************************************
 	// 				CONSTRUCTOR
 	// ***********************************************************	
-	private UserManager(){
+	public UserDatabaseCommunicator(){
 		Speedment speedment = new GikkStreamUtilApplication().build();
         userDatabase = speedment.managerOf(User.class);  
 	}
@@ -55,8 +41,18 @@ public class UserManager {
 	// ***********************************************************
 	// 				PUBLIC
 	// ***********************************************************	
-	public final ObservableList<ObservableUser> getUserOnlineList(){
-		return usersOnline;
+	
+	/**Fetch a list of users and sets their status
+	 * 
+	 * @param users Users whose status should be changed
+	 * @param status The new status they should have
+	 */
+	public synchronized void updateStatus(UserStatus status, String ...users) {
+		if( users.length <= 0)
+			return;
+		
+		for(String user : users)
+			retreiveUser(user).setStatus(status);	
 	}
 	
 	public synchronized void incrementWrittenRows(String userName, int amount){
@@ -64,12 +60,6 @@ public class UserManager {
 		Platform.runLater(() -> {
 			user.addLinesWritten(amount);
 		} );
-	}
-	
-	public void incrementUsersOnlinetime(int minutes) {
-		Platform.runLater(() -> {
-			usersOnline.stream().forEach( p -> p.addTimeOnline(minutes) );				
-		} );				
 	}
 
 	/**Check the status of the user.
@@ -99,40 +89,22 @@ public class UserManager {
 		
 		return out;
 	}
-	
-	public synchronized void joinPresentUsers(String[] presentUsers){
-		for(String user : presentUsers)
-			joinUser(user);
-	}
-	
-	public void partUser(String user) {
-		ObservableUser u = retreiveUser(user );
-		Platform.runLater( () -> {
-			usersOnline.remove(u);
-		});
-	}	
-	
-	public void joinUser(String user) {
-		ObservableUser u = retreiveUser(user);
-		Platform.runLater( () -> { 
-			usersOnline.add(u);
-		});		
-	}
 
 	public synchronized void resetDatabase() {
 		userCache.clear();
 		clearUserDatabase();
-		Platform.runLater( () -> {
-			usersOnline.clear();
-		} );
+	}
+	
+	public synchronized void flushToDatabase(){
+		flushUsers();
 	}
 	
 	public synchronized void onProgramExit(){
-		flushUsers();
+		flushToDatabase();
 	}
 
 	// ***********************************************************
-	// 				PRIVATE
+	// 				PACKAGE
 	// ***********************************************************	
 	
 	/**Either fetches the ObservebleUser for this user name from the cache, or creates
@@ -142,7 +114,7 @@ public class UserManager {
 	 * @param userName
 	 * @return
 	 */
-	private ObservableUser retreiveUser (String userName){
+	synchronized ObservableUser retreiveUser (String userName){
 		String name = userName.toLowerCase();
 		
 		ObservableUser oUser = userCache.get(name);
@@ -182,6 +154,18 @@ public class UserManager {
 			userDatabase.remove(u);
 	}
 	
+	/**Fetches all users of a certain UserStatus from the underlying database
+	 * 
+	 * @param status
+	 * @return List of all users with the given UserStatus. The list might be empty
+	 */
+	private synchronized List<User> fetchUsersOfStatus(UserStatus status){
+		String statusName = status.toString();
+		return userDatabase.stream()
+							.filter( User.STATUS.equal(statusName) )
+							.collect( Collectors.toList() );
+	}
+	
 	/**Creates a new User in the underlying UserDatabase, and creates a ObservableUser wrapping the user.
 	 * 
 	 * @param userName The user name of the new User. All other fields are default initiated.
@@ -193,7 +177,7 @@ public class UserManager {
 		try {
             user = userDatabase.newEmptyEntity()
                 .setUsername(name)
-                .setStatus( ObservableUser.parseStatus( ObservableUser.Status.Regular) ) //Really messy way to write "Regular"
+                .setStatus( UserStatus.REGULAR.toString() ) //Really messy way to write "Regular"
                 .setIsFollower(false)
                 .setIsSubscriber(false)
                 .setIsTrusted(false)
@@ -201,15 +185,16 @@ public class UserManager {
                 .setTimeOnline(0)
                 .persist();
                 
-            System.out.println("Added nr. " + user.getId() +", "
+            System.out.println("***Added nr. " + user.getId() +", "
             		+ "Name: " 		  	+ user.getUsername() + ", "
+            		+ "Status: "		+ user.getStatus() +", "
             		+ "Time online: " 	+ user.getTimeOnline() +", "
             		+ "Lines written: " + user.getLinesWritten() +", "
             		+ "Is trusted: " 	+ user.getIsTrusted() +", "
             		+ "Is follower: " 	+ user.getIsFollower() +", "
             		+ "Is subscriber: " + user.getIsSubscriber() );
         } catch (SpeedmentException se) {
-           System.out.println("\tCould not create new user: " + userName);
+           System.out.println("***Could not create new user: " + userName);
            System.err.println( se.getLocalizedMessage() );
            return null;
         }

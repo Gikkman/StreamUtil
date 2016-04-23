@@ -1,5 +1,11 @@
 package com.gikk.gikk_stream_util.db0.gikk_stream_util.user.generated;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.stream.Stream;
+
+import javax.annotation.Generated;
+
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.UserImpl;
 import com.speedment.Speedment;
@@ -9,11 +15,6 @@ import com.speedment.field.trait.FieldTrait;
 import com.speedment.internal.core.manager.sql.AbstractSqlManager;
 import com.speedment.util.tuple.Tuple1;
 import com.speedment.util.tuple.Tuples;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.stream.Stream;
-import javax.annotation.Generated;
-import static com.speedment.internal.util.sql.ResultSetUtil.*;
 
 /**
  * The generated base manager implementation representing an entity (for

@@ -17,7 +17,7 @@ class InputThread extends Thread{
 	//***********************************************************************************************
 	//											VARIABLES
 	//***********************************************************************************************
-	private final IrcConnection connection;
+	private final TwitchIRC connection;
 	private final BufferedReader reader;
 	private final BufferedWriter writer;
 	
@@ -26,7 +26,7 @@ class InputThread extends Thread{
 	//***********************************************************************************************
 	//											CONSTRUCTOR
 	//***********************************************************************************************
-	public InputThread(IrcConnection connection, BufferedReader reader, BufferedWriter writer){
+	public InputThread(TwitchIRC connection, BufferedReader reader, BufferedWriter writer){
 		this.connection = connection;
 		this.reader  = reader;
 		this.writer  = writer;

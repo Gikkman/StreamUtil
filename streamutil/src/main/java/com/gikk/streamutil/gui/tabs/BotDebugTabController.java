@@ -3,7 +3,7 @@ package com.gikk.streamutil.gui.tabs;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import com.gikk.streamutil.irc.GikkBot;
+import com.gikk.streamutil.GikkBot;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

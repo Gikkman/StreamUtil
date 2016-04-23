@@ -1,9 +1,18 @@
-package com.gikk.streamutil.irc;
+package com.gikk.streamutil;
 
 import java.io.File;
 import java.nio.file.Paths;
 
-import com.gikk.streamutil.users.UserManager;
+import com.gikk.streamutil.irc.IrcListener;
+import com.gikk.streamutil.irc.TwitchIRC;
+import com.gikk.streamutil.irc.listeners.MaintainanceListener;
+import com.gikk.streamutil.irc.tasks.FetchAdminAndModsTask;
+import com.gikk.streamutil.users.IncrementOnlinetimeTask;
+import com.gikk.streamutil.users.ObservableUser;
+import com.gikk.streamutil.users.UserDatabaseCommunicator;
+import com.gikk.streamutil.users.UsersOnlineTracker;
+
+import javafx.collections.ObservableList;
 
 
 /**<b>SINGLETON</b><br><br>
@@ -34,7 +43,9 @@ public class GikkBot{
 	private static class HOLDER { static final GikkBot INSTANCE = new GikkBot(); };
 	enum Capacity {MEMBERS, COMMANDS, TAGS};
 	
-	private final IrcConnection irc;
+	private final TwitchIRC irc;
+	private final UserDatabaseCommunicator userDatabaseCommunicator;
+	private final UsersOnlineTracker userOnlineTracker;
 	
 	
 	//***********************************************************************************************
@@ -48,17 +59,25 @@ public class GikkBot{
 	//											CONSTRUCTOR
 	//***********************************************************************************************
 	private GikkBot() {
+		this.userDatabaseCommunicator  = new UserDatabaseCommunicator();
+		this.userOnlineTracker = new UsersOnlineTracker(userDatabaseCommunicator);
 		
-		//Load the bots settings from a file named "pirc.ini" located in the users Home folder.
+		//This task makes sure that users that are online on every 1 minute mark gets their online time
+		//inremented by one minute. 
+		//This means that we do not track each users online time individually! Time online will not be 100% accurate
+		IncrementOnlinetimeTask task = new IncrementOnlinetimeTask(userOnlineTracker);
+		task.schedule(60 * 1000, 60 * 1000);
+		
+		//Load the bots settings from a file named "gikk.ini" located in the users Home folder.
 		//In case we fail to connect, we retry 
 		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
-		irc = new IrcConnection(file);
-		
-		irc.addIrcListener( new MyIrcListener() );
-		
+		irc = new TwitchIRC(file);
+		irc.addIrcListener( new MaintainanceListener(userDatabaseCommunicator, userOnlineTracker) );		
 		irc.connect();
 		addCapacity(Capacity.MEMBERS);
 		addCapacity(Capacity.COMMANDS);
+		
+		FetchAdminAndModsTask.CREATE_AND_SCHEDULE(this, userDatabaseCommunicator);
 	}
 	
 	//***********************************************************************************************
@@ -67,7 +86,7 @@ public class GikkBot{
 	public void channelMessage(String message){
 		irc.channelMessage(message);
 		//Remember to update the number of line our bot's written :-)
-		UserManager.GET().incrementWrittenRows( irc.getNick() , 1);
+		userDatabaseCommunicator.incrementWrittenRows( irc.getNick() , 1);
 	}
 	
 	public void clearChat(){
@@ -86,12 +105,29 @@ public class GikkBot{
 		irc.serverMessage(text);	
 	}
 	
-	public void onProgramExit(){
-		closeConnection();
-	}
-	
 	public void closeConnection() {
 		irc.closeConnection();
+	}
+	
+	public void addIrcListener(IrcListener listener){
+		irc.addIrcListener(listener);	
+	}
+	
+	public String getChannel() {
+		return irc.getChannel();
+	}
+	
+	public void removeIrcListener(IrcListener listener){
+		irc.removeIrcListener(listener);	
+	}
+	
+	public ObservableList<ObservableUser> getUsersOnlineList(){
+		return userOnlineTracker.getUserOnlineList();
+	}
+	
+	public void onProgramExit(){
+		closeConnection();
+		userDatabaseCommunicator.onProgramExit();
 	}
 	
 	//***********************************************************************************************
@@ -110,29 +146,6 @@ public class GikkBot{
 			break;
 		}
 	}
+
 	
-	private class MyIrcListener implements IrcListener {
-		@Override
-		public void onAnything(IrcMessage message) {
-			System.out.println("IN  " + message.getLine());
-		}			
-		@Override
-		public void onWhisper(IrcUser user, IrcMessage message) {
-			System.out.println("\t" + user.getNick() +" thinks I'm special <3");	
-		}			
-		@Override
-		public void onPrivMsg(IrcUser user, IrcMessage message) {
-			UserManager.GET().incrementWrittenRows( user.getNick() , 1);
-		}			
-		@Override
-		public void onPart(IrcUser user) {
-			UserManager.GET().partUser( user.getNick() );
-			
-		}			
-		@Override
-		public void onJoin(IrcUser user) {
-			UserManager.GET().joinUser( user.getNick() );
-			
-		}
-	}
 }

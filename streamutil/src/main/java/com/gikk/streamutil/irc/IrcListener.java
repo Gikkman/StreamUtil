@@ -12,5 +12,7 @@ public interface IrcListener {
 	
 	public default void onPart( IrcUser user ) {}
 	
+	public default void onNotice( IrcMessage message ) {}
+	
 	public default void onUnknown( IrcMessage message ) {}
 }

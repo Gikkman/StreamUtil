@@ -16,7 +16,7 @@ class OutputThread extends Thread{
 	//***********************************************************************************************
 	//											VARIABLES
 	//***********************************************************************************************
-	private final IrcConnection connection;
+	private final TwitchIRC connection;
 	private final BufferedReader reader;
 	private final BufferedWriter writer;
 	private final OutputQueue queue;
@@ -28,7 +28,7 @@ class OutputThread extends Thread{
 	//***********************************************************************************************
 	//											CONSTRUCTOR
 	//***********************************************************************************************
-	public OutputThread(IrcConnection connection, OutputQueue queue, BufferedReader reader, BufferedWriter writer){
+	public OutputThread(TwitchIRC connection, OutputQueue queue, BufferedReader reader, BufferedWriter writer){
 		this.connection = connection;
 		this.queue = queue;
 		this.reader = reader;

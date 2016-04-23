@@ -1,7 +1,12 @@
 package com.gikk.streamutil.irc;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -19,7 +24,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  * @author Simon
  *
  */
-class IrcConnection {	
+public class TwitchIRC {	
 	//***********************************************************************************************
 	//											VARIABLES
 	//***********************************************************************************************
@@ -46,14 +51,14 @@ class IrcConnection {
 	//***********************************************************************************************
 	//											CONSTRUCTOR
 	//***********************************************************************************************
-    public IrcConnection(File file) {
+    public TwitchIRC(File propertiesFile) {
     	PropertiesConfiguration prop = new PropertiesConfiguration();
     	prop.setDelimiterParsingDisabled(true);
     	try {
-			prop.load(file);
+			prop.load(propertiesFile);
 		} catch (ConfigurationException e1) {
 			//TODO: Handle this error better
-			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your User/ folder");
+			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your Home/User/ folder");
 			System.exit(-1);
 		}
     	
@@ -102,8 +107,7 @@ class IrcConnection {
 	}
 	
 	public void priorityChannelMessage(String message) {
-		outThread.enqueueMessageFront("PRIVMSG " + getChannel() + " :" + message);
-		
+		outThread.enqueueMessageFront("PRIVMSG " + getChannel() + " :" + message);		
 	}
 	
 	public boolean isConnected() {
@@ -127,7 +131,10 @@ class IrcConnection {
 	}
 	
 	public void addIrcListener(IrcListener listener){
-		this.listeners.add(listener);
+		synchronized (listeners) {			
+			System.out.println("\tAdded listener");
+			this.listeners.add(listener);
+		}
 	}
 	
 	/**Removes a specific listener from the list of active listeners
@@ -136,7 +143,10 @@ class IrcConnection {
 	 * @return <code>true</code> if the listener was removed
 	 */
 	public boolean removeIrcListener(IrcListener listener){
-		return this.listeners.remove(listener);
+		synchronized (listeners) {	
+			System.out.println("\tRemoved listener");
+			return this.listeners.remove(listener);
+		}
 	}
         
     /**Connects to the Twitch server and joins the appropriate channel.
@@ -159,7 +169,7 @@ class IrcConnection {
     	channelMessage("Hello! " + getNick() + " at your service!");
     }
 
-    /**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
+	/**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
      * frees all resources.
      * 
      */
@@ -254,57 +264,65 @@ class IrcConnection {
     		// A PING contains the message "PING MESSAGE", and we want to reply with MESSAGE as well
     		// Hence, we reply "PONG MESSAGE" . That's where the substring(5) comes from bellow, we strip
     		//out everything but the message
-    		serverMessage("PONG :" + message.getContent() != "" ? message.getContent() : message.getCommand() );
+    		serverMessage("PONG :" + message.getCommand() );
     		channelMessage("We got pinged!");
     		
     		wasPing = true;
 		}
 		
-		//Call all the appropriate listeners for the given message.
-		//
-		//First, we call all onAnything messages
-		for(IrcListener l : listeners )
-			l.onAnything(message);
-		
-		//If this was a ping, we don't have to do anything more
-		if( wasPing )
-			return;
-		
-		if( message.getCommand().matches("[0-9]+") ){
-			//TODO: Implement different codes
-			return;
-		}
-		
-		//Check for message types that are sent by a user
-		//TODO: Implement other message types. These are only the ones used by Twitch
-		IrcUser user = IrcUser.create( message );
-		if( user != null)
-			switch( message.getCommand().toUpperCase() ) {
-			case "PRIVMSG":
-				for(IrcListener l : listeners )
-					l.onPrivMsg(user, message);
+		synchronized (listeners) {
+			//Call all the appropriate listeners for the given message.
+			//
+			//First, we call all onAnything messages
+			for(IrcListener l : listeners )
+				l.onAnything(message);
+			
+			//If this was a ping, we don't have to do anything more
+			if( wasPing )
 				return;
-				
-			case "WHISPER":
-				for(IrcListener l : listeners )
-					l.onWhisper(user, message);
+			
+			if( message.getCommand().matches("[0-9]+") ){
+				//TODO: Implement different codes
 				return;
-				
-			case "JOIN":
-				for(IrcListener l : listeners )
-					l.onJoin( user );
-				return;
-				
-			case "PART":
-				for(IrcListener l : listeners )
-					l.onPart( user );
-				return;
-				
-			default:
 			}
-		
-		//If we've gotten all the way down here, we don't know this message's type
-		for(IrcListener l : listeners )
-			l.onUnknown(message);
+			
+			if( message.getCommand().matches("NOTICE") ){
+				for(IrcListener l : listeners )
+					l.onNotice(message);
+				return;
+			}
+			
+			//Check for message types that are sent by a user
+			//TODO: Implement other message types. These are only the ones used by Twitch
+			IrcUser user = IrcUser.create( message );
+			if( user != null)
+				switch( message.getCommand().toUpperCase() ) {
+				case "PRIVMSG":
+					for(IrcListener l : listeners )
+						l.onPrivMsg(user, message);
+					return;
+					
+				case "WHISPER":
+					for(IrcListener l : listeners )
+						l.onWhisper(user, message);
+					return;
+					
+				case "JOIN":
+					for(IrcListener l : listeners )
+						l.onJoin( user );
+					return;
+					
+				case "PART":
+					for(IrcListener l : listeners )
+						l.onPart( user );
+					return;		
+					
+				default:
+				}
+			
+			//If we've gotten all the way down here, we don't know this message's type
+			for(IrcListener l : listeners )
+				l.onUnknown(message);
+		}
 	}
 }

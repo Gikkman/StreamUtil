@@ -7,7 +7,7 @@ package com.gikk.streamutil.task;
  */
 public abstract class OneTimeTask implements GikkTask{
 	
-	public final void schedule(int delaySeconds) {
-		Scheduler.GET().scheduleOneTimeTask(this, delaySeconds );
+	public final void schedule(int delayMilis) {
+		Scheduler.GET().scheduleOneTimeTask(this, delayMilis );
 	}
 }

@@ -19,11 +19,11 @@ public abstract class RepeatedTask implements GikkTask {
 	 * Directly after the task has been scheduled, the onSchedule method will be called. Execution of the onSchedule method
 	 * is performed on the same thread that called this method.
 	 * 
-	 * @param initialDelay	How long we wait until we execute this task the first time
-	 * @param periodSeconds	How long we wait until we execute this task from the previous time it was executed
+	 * @param initialDelayMilis	How long we wait until we execute this task the first time
+	 * @param periodMilis	How long we wait until we execute this task from the previous time it was executed
 	 */
-	public final void schedule(int initialDelay, int periodSeconds) {
-		future = Scheduler.GET().scheduleRepeatedTask(this, initialDelay, periodSeconds);		
+	public final void schedule(int initialDelayMilis, int periodMilis) {
+		future = Scheduler.GET().scheduleRepeatedTask(this, initialDelayMilis, periodMilis);		
 	}
 	
 	/** Calling this method will attempt to end this task.<br>

@@ -1,8 +1,6 @@
 package com.gikk.streamutil.users;
 
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
-import com.gikk.streamutil.misc.StackTrace;
-
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -30,48 +28,16 @@ import javafx.beans.property.StringProperty;
  *
  */
 public class ObservableUser {
-	public enum Status {
-		Regular, Moderator, Admin
-	};
-
-	private static final String REGULAR = "regular", MODERATOR = "moderator", ADMIN = "admin";
-
 	private User user;
 	private final SimpleStringProperty userName = new SimpleStringProperty();
-	private final SimpleStringProperty status = new SimpleStringProperty(REGULAR);
+	private final SimpleStringProperty status = new SimpleStringProperty(UserStatus.REGULAR.toString());
 	private final SimpleIntegerProperty timeOnline = new SimpleIntegerProperty(0);
 	private final SimpleIntegerProperty linesWritten = new SimpleIntegerProperty(0);
 	private final SimpleBooleanProperty trusted = new SimpleBooleanProperty(false);
 	private final SimpleBooleanProperty follower = new SimpleBooleanProperty(false);
 	private final SimpleBooleanProperty subscriber = new SimpleBooleanProperty(false);
 
-	// ***********************************************************
-	// STATIC
-	// ***********************************************************
-	public static String parseStatus(Status status) {
-		switch (status) {
-		case Admin:
-			return ADMIN;
-		case Moderator:
-			return MODERATOR;
-		case Regular:
-		default:
-			return REGULAR;
-		}
-	}
 
-	public static Status parseStatus(String status) {
-		String temp = status.trim();
-		if (temp.equalsIgnoreCase(ADMIN))
-			return Status.Admin;
-		else if (temp.equalsIgnoreCase(MODERATOR))
-			return Status.Moderator;
-		else if (temp.equalsIgnoreCase(REGULAR))
-			return Status.Regular;
-
-		System.err.println("\tError! Unable to parse status " + status + " " + StackTrace.getStackPos());
-		return null;
-	}
 	// ***********************************************************
 	// CONSTRUCTORS
 	// ***********************************************************
@@ -89,50 +55,50 @@ public class ObservableUser {
 	// ***********************************************************
 	// PUBLIC
 	// ***********************************************************
-	public String getStatus() {
+	public synchronized String getStatus() {
 		return status.get();
 	}
 
-	public void setStatus(Status status) {
-		this.user.setStatus(parseStatus(status));
-		this.status.setValue(parseStatus(status));
+	public synchronized void setStatus(UserStatus status) {
+		this.user.setStatus( status.toString() );
+		this.status.setValue( status.toString() );
 	}
 	
-	public Boolean isTrusted() {
+	public synchronized Boolean isTrusted() {
 		return trusted.getValue();
 	}
 	
-	public void setTrusted(Boolean trusted){
+	public synchronized void setTrusted(Boolean trusted){
 		this.user.setIsTrusted(trusted);
 		this.trusted.setValue(trusted);
 	}
 
-	public Boolean isFollower() {
+	public synchronized Boolean isFollower() {
 		return follower.getValue();
 	}
 	
-	public void setFollower(Boolean follower) {
+	public synchronized void setFollower(Boolean follower) {
 		this.user.setIsFollower(follower);
 		this.follower.setValue(follower);
 	}
 
-	public Boolean isSubscriber() {
+	public synchronized Boolean isSubscriber() {
 		return subscriber.getValue();
 	}
 	
-	public void setSubscriber(Boolean subscriber){
+	public synchronized void setSubscriber(Boolean subscriber){
 		this.user.setIsSubscriber(subscriber);
 		this.subscriber.setValue(subscriber);
 	}
 
-	public Integer getTimeOnline() {
+	public synchronized Integer getTimeOnline() {
 		return timeOnline.getValue();
 	}
 
 	public String getTimeOnlineFormated() {
-		long t = timeOnline.get();
-		long h = t / 60;
-		long m = t % 60;
+		int t = getTimeOnline();
+		int h = t / 60;
+		int m = t % 60;
 
 		String out = "";
 		out += (h > 0 ? h + "h " : "");
@@ -140,49 +106,64 @@ public class ObservableUser {
 		return out;
 	}
 
-	public void addTimeOnline(int min) {
+	public synchronized void addTimeOnline(int min) {
 		int newTime = timeOnline.get() + min;
 
-		this.user.setTimeOnline(newTime);
 		this.timeOnline.set(newTime);
+		this.user.setTimeOnline(newTime);
 	}
 
-	public void setTimeOnline(Integer newMin) {
-		this.user.setTimeOnline(newMin);
+	public synchronized void setTimeOnline(Integer newMin) {
 		this.timeOnline.set(newMin);
+		this.user.setTimeOnline(newMin);
+
 	}
 
-	public Integer getLinesWritten() {
+	public synchronized Integer getLinesWritten() {
 		return linesWritten.getValue();
 	}
 
-	public void addLinesWritten(Integer amount) {
+	public synchronized void addLinesWritten(Integer amount) {
 		int newLinesWritten = this.linesWritten.get() + amount;
 
-		this.user.setLinesWritten(newLinesWritten);
 		this.linesWritten.set(newLinesWritten);
+		this.user.setLinesWritten(newLinesWritten);
+
 	}
 
-	public void setLinesWritten(Integer newAmount) {
-		this.user.setLinesWritten(newAmount);
+	public synchronized void setLinesWritten(Integer newAmount) {
 		this.linesWritten.set(newAmount);
+		this.user.setLinesWritten(newAmount);
+
 	}
 
-	public String getUserName() {
+	public synchronized String getUserName() {
 		return userName.get();
+	}
+	
+	synchronized void updateUnderlyingDatabaseObject(){
+		this.user = this.user.update();
 	}
 
 	@Override
-	public String toString() {
-		String out = getUserName() + " (" + getStatus() + ")";
+	public synchronized String toString() {
+		String out = getUserName();
 		
-		
+		if( getStatus().matches( UserStatus.ADMIN.toString() ) )
+			out += " (ADMIN)";
+		else if( getStatus().matches( UserStatus.MODERATOR.toString() ))
+			out += " (MOD)";
+
 		if (isSubscriber())
 			out += " [Subscriber]";
 		else if (isFollower())
 			out += " [Follower]";
 		else
 			out += " [Guest]";
+		
+		if( isTrusted() )
+			out += " {Trusted}";
+		
 		out += " Time online: " + getTimeOnlineFormated();
 		out += " Lines written: " + getLinesWritten();
 		return out;
@@ -213,9 +194,5 @@ public class ObservableUser {
 
 	public BooleanProperty subscriberProperty() {
 		return subscriber;
-	}
-
-	void updateUnderlyingDatabaseObject(){
-		this.user = this.user.update();
 	}
 }

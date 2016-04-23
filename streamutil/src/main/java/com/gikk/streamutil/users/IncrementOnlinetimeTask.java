@@ -9,8 +9,15 @@ import com.gikk.streamutil.task.RepeatedTask;
  *
  */
 public class IncrementOnlinetimeTask extends RepeatedTask{
+	
+	private final UsersOnlineTracker usersOnline;
+	
+	public IncrementOnlinetimeTask(UsersOnlineTracker uo) {
+		this.usersOnline = uo;
+	}
+	
 	@Override
 	public void onExecute() {
-		UserManager.GET().incrementUsersOnlinetime(1);	//Add one minute to all users that are online
+		usersOnline.incrementUsersOnlinetime(1);	//Add one minute to all users that are online
 	}
 }

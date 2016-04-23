@@ -1,9 +1,8 @@
 package com.gikk.streamutil;
 
 import java.net.URISyntaxException;
-import com.gikk.streamutil.irc.GikkBot;
+
 import com.gikk.streamutil.task.Scheduler;
-import com.gikk.streamutil.users.UserManager;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -35,7 +34,6 @@ public class Main extends Application{
 				//TODO: Consider this: Should we use a MethodMapper instead of this?
 				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
-				UserManager.GET().onProgramExit();
 			} );
 			
 			primaryStage.show();
@@ -50,7 +48,6 @@ public class Main extends Application{
 		//A very ugly way of making sure the Singletons work and are initiated
 		try{ 
 			GikkBot.GET(); 
-			UserManager.GET();
 			Scheduler.GET();
 		}
 		catch( Exception e) {
