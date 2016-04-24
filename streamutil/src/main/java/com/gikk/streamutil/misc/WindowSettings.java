@@ -2,22 +2,15 @@ package com.gikk.streamutil.misc;
 
 import java.util.prefs.Preferences;
 
-import com.gikk.streamutil.Main;
-
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**From experience, it is handy to have a utility class for handling memorizing of window position between sessions.
  * 
  * @author Simon
  */
-public class TOOLBOX {
-	public static void applyCss(Scene scene){
-		scene.getStylesheets().add( Main.class.getResource("application.css").toExternalForm());
-	}
-	
+public class WindowSettings {	
 	public static void saveWindowPos(Stage stage, String windowName){
-		Preferences prefs = Preferences.userNodeForPackage( TOOLBOX.class );		
+		Preferences prefs = Preferences.userNodeForPackage( WindowSettings.class );		
 		prefs.putDouble(windowName + "xPos", 	stage.getX() );
     	prefs.putDouble(windowName + "yPos", 	stage.getY() );
     	prefs.putDouble(windowName + "width", 	stage.getWidth() );
@@ -25,7 +18,7 @@ public class TOOLBOX {
 	}
 	
 	public static void loadWindowPos(Stage stage, String windowName){
-		Preferences prefs = Preferences.userNodeForPackage( TOOLBOX.class );	
+		Preferences prefs = Preferences.userNodeForPackage( WindowSettings.class );	
 		stage.setX( 	prefs.getDouble(windowName + "xPos",	stage.getX() ));
 		stage.setY( 	prefs.getDouble(windowName + "yPos", 	stage.getY() ));
 		stage.setWidth( prefs.getDouble(windowName + "width", 	stage.getWidth() ));

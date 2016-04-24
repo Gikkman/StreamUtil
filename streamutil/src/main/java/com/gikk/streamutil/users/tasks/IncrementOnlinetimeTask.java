@@ -1,6 +1,7 @@
-package com.gikk.streamutil.users;
+package com.gikk.streamutil.users.tasks;
 
 import com.gikk.streamutil.task.RepeatedTask;
+import com.gikk.streamutil.users.UsersOnlineTracker;
 
 /**This task created by the UserManager and scheduled to fire once every minute. When it fires, it requests that
  * all users curretly listed as online increments their time online by 1 minute.

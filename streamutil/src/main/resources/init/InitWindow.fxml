@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitWindowController">
+   <children>
+      <Label alignment="CENTER" prefHeight="50.0" prefWidth="600.0" text="GikkBot" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <font>
+            <Font name="System Bold" size="30.0" />
+         </font>
+      </Label>
+      <Accordion fx:id="acn_box" layoutX="14.0" layoutY="51.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="535.0" prefWidth="572.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="62.0">
+        <panes>
+          <TitledPane fx:id="tp_4" animated="false" expanded="false" text="Step 4 - Twitch API access">
+               <content>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+				        <fx:include source="Step%204.fxml" />
+                     </children>
+                  </Pane>
+               </content></TitledPane>
+          <TitledPane fx:id="tp_3" animated="false" expanded="false" text="Step 3 - Twitch account">
+               <content>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+				        <fx:include source="Step%203.fxml" />
+                     </children>
+                  </Pane>
+               </content></TitledPane>
+          <TitledPane fx:id="tp_2" animated="false" expanded="false" text="Step 2 - Database">
+               <content>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+				        <fx:include source="Step%202.fxml" />
+                     </children>
+                  </Pane>
+               </content></TitledPane>
+          <TitledPane fx:id="tp_1" animated="false" prefWidth="572.0" text="Step 1 - Introduction">
+               <content>
+                  <Pane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+				        <fx:include source="Step%201.fxml" />
+                     </children>
+                  </Pane>
+               </content></TitledPane>
+        </panes>
+      </Accordion>
+   </children>
+</AnchorPane>

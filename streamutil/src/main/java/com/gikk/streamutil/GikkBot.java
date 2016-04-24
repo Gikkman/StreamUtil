@@ -7,10 +7,10 @@ import com.gikk.streamutil.irc.IrcListener;
 import com.gikk.streamutil.irc.TwitchIRC;
 import com.gikk.streamutil.irc.listeners.MaintainanceListener;
 import com.gikk.streamutil.irc.tasks.FetchAdminAndModsTask;
-import com.gikk.streamutil.users.IncrementOnlinetimeTask;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 import com.gikk.streamutil.users.UsersOnlineTracker;
+import com.gikk.streamutil.users.tasks.IncrementOnlinetimeTask;
 
 import javafx.collections.ObservableList;
 

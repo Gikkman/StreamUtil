@@ -3,6 +3,7 @@ package com.gikk.streamutil;
 import java.net.URISyntaxException;
 
 import com.gikk.streamutil.task.Scheduler;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -26,7 +27,7 @@ public class Main extends Application{
 		ClassLoader cl = this.getClass().getClassLoader();
 		        
 		try {
-			Scene scene = new Scene(FXMLLoader.load( cl.getResource("MainWindow.fxml") ) );
+			Scene scene = new Scene(FXMLLoader.load( cl.getResource("init/InitWindow.fxml") ) );
 			scene.getStylesheets().add( cl.getResource("application.css").toExternalForm() );
 			
 			primaryStage.setScene(scene);

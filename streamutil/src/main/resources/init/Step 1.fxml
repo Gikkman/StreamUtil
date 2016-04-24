@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
+
+<AnchorPane prefHeight="434.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep1Controller">
+   <children>
+      <VBox layoutX="14.0" layoutY="14.0" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="403.0" prefWidth="539.0" spacing="10.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hello, and welcome to GikkBot!" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="These series of steps are intended to help you set up the bot and get stuff going. Just follow the steps listed here and fill out all the fileds as instructed, and everything will work just fine. Whenever you are done with one step, click the next tab above to open the next step. You can always go back to previous steps and fix something too" wrappingWidth="538.337890625" />
+            <Separator prefWidth="200.0" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="During this initialization we will cover 4 steps:" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="• Select were to store local data" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="• Set up a MySQL database" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="• Create a Twitch account for your bot" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="• Allow the bot to make changes to your account (No changes will be made to your account unless you order them)" wrappingWidth="525.607421875" />
+            <TextFlow prefHeight="0.0" prefWidth="542.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The bot is open source and can be found on GitHub: " />
+                  <Hyperlink text="https://github.com/Gikkman/StreamUtil" />
+               </children>
+            </TextFlow>
+            <Separator prefWidth="200.0" />
+            <TextFlow>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="So, step 1: Let's deside were we will store local data. This local data will be stored in an unencrypted file, so make sure that the file " wrappingWidth="422.796875" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="is not globaly accessible ">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(i.e. uploaded or otherwise accessible to others)" />
+               </children>
+            </TextFlow>
+            <HBox alignment="CENTER_LEFT" spacing="20.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#click_choseLocation" prefHeight="41.0" prefWidth="104.0" text="Chose location" />
+                  <Text fx:id="txt_directory" strokeType="OUTSIDE" strokeWidth="0.0" text="NO LOCATION CHOSEN" wrappingWidth="415.384765625" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

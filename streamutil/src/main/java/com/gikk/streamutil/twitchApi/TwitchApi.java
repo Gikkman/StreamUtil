@@ -36,7 +36,7 @@ public class TwitchApi {
 	//***********************************************************************************************
 	//											VARIABLES
 	//***********************************************************************************************
-	private static class Holder {	static final TwitchApi INSTANCE = new TwitchApi();  }
+	private static class Holder {static final TwitchApi INSTANCE = new TwitchApi();  }
 	
 	private final Twitch twitch;
 
@@ -66,7 +66,7 @@ public class TwitchApi {
 		} catch (ConfigurationException e1) {
 			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your User/ folder");
 		}
-    	clientID = prop.getString("ClientID ");
+    	clientID = prop.getString("ClientID");
     	channel = prop.getString("Channel").substring(1); //Since the channel has a # in the front, we need to remove that one.
 		
 		token = getToken();	
