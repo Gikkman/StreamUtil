@@ -2,6 +2,8 @@ package com.gikk.streamutil.gui.init;
 
 import java.io.File;
 
+import com.gikk.streamutil.misc.OpenBrowser;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -19,6 +21,7 @@ public class InitStep1Controller {
 	// 				PUBLIC
 	//***********************************************************	
 	public File getDirectory(){
+		
 		if( directory != null && directory.exists() && directory.isDirectory() )
 			return directory;
 
@@ -36,5 +39,9 @@ public class InitStep1Controller {
 		 
 		 if( directory != null )
 		 	txt_directory.setText( directory.getAbsolutePath() );
+	}
+	
+	@FXML protected void click_openGithub(ActionEvent e){
+		OpenBrowser.open("https://www.github.com/gikkman/streamutil");
 	}
 }

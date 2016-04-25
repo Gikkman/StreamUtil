@@ -1,12 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Label?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
-<AnchorPane prefHeight="434.0" prefWidth="570.0" style="-fx-background-color: blue;" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep2Controller">
+<AnchorPane prefHeight="434.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep2Controller">
    <children>
-      <Label layoutX="7.0" layoutY="6.0" text="Label" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
-      <Label text="Label" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+      <TextArea editable="false" layoutX="14.0" layoutY="234.0" prefHeight="200.0" prefWidth="332.0" text="CREATE DATABASE if not exists gikk_stream_util;&#10;USE gikk_stream_util;&#10;&#10;drop table if exists USERS;&#10;&#10;create table if not exists USERS (&#10;&#9;ID integer(32) not null auto_increment,&#10;    USERNAME varchar(32) not null,&#10;    STATUS varchar(32) not null,&#10;    TIME_ONLINE int(32)not null,&#10;    LINES_WRITTEN int(32)not null,&#10;    IS_TRUSTED varchar(5) not null,&#10;    IS_FOLLOWER varchar(5) not null,&#10;    IS_SUBSCRIBER varchar(5) not null,&#10;    primary key (ID),&#10;    unique key USERNAME (USERNAME)&#10;) DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;&#10;&#10;CREATE USER if not exists 'gikkbot_user'@'localhost';&#10;GRANT ALL on gikk_stream_util.* TO 'gikkbot_user'@'localhost';&#10;FLUSH PRIVILEGES;" AnchorPane.bottomAnchor="0.0" />
+      <TextFlow layoutX="14.0" layoutY="14.0" prefHeight="44.0" prefWidth="543.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The next thing we need to do is setting up a MySQL database, for storing data about users. For that, we will use a MySQL community server. Go to: " wrappingWidth="565.8828125" />
+            <Hyperlink onAction="#click_openLink" text="http://dev.mysql.com/downloads/">
+               <padding>
+                  <Insets top="-2.0" />
+               </padding>
+            </Hyperlink>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="and download the MySQL Community Server. Install it (" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="(you can use the Developer Default configuration">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font>
+            </Text>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=")." />
+         </children>
+      </TextFlow>
+      <ImageView fitHeight="206.0" fitWidth="202.0" layoutX="356.0" layoutY="220.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0">
+         <image>
+            <Image url="@../db_setup.JPG" />
+         </image>
+      </ImageView>
+      <TextFlow layoutX="14.0" layoutY="75.0" prefHeight="55.0" prefWidth="534.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="When the installation is complete, the SQL workbench should launch (" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="if not, launch it manually">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font>
+            </Text>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="). Click on the pre-existing &quot;Local instance&quot;-card to open the SQL editor. This should present you with a blank text field with a lot of controllers around it. " />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Copy all the text from the scrollable text box bellow and paste it into the SQL editor.">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Text>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" Then, press the " />
+            <ImageView fitHeight="17.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../execute.JPG" />
+               </image>
+            </ImageView>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=". This should produce a lot of text ouptup at the bottom of your workbench window." />
+         </children>
+      </TextFlow>
+      <TextFlow layoutX="14.0" layoutY="166.0" prefHeight="48.0" prefWidth="543.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Now, on the lower left in the workbench view, you should be able to see an area called SCHEMAS. Press the UPDATE icon (" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="see the image bellow">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font>
+            </Text>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="). A new SCHEMA called " />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="gikk_stream_util">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Text>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" should appear. If you expand it, it should look like in the image bellow." />
+         </children>
+      </TextFlow>
    </children>
 </AnchorPane>
-

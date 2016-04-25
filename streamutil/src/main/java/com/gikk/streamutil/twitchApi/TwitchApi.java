@@ -57,7 +57,7 @@ public class TwitchApi {
 	private TwitchApi(){
 		twitch = new Twitch();
 		
-		//Load info from the .ini file
+		//TODO: Load info from the .ini file
 		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
 	   	PropertiesConfiguration prop = new PropertiesConfiguration();
     	prop.setDelimiterParsingDisabled(true);

@@ -153,7 +153,8 @@ public class GeneratedGikkStreamUtilApplicationMetadata implements ApplicationMe
         METADATA.append("                    \"enabled\": true\n");
         METADATA.append("                  }\n");
         METADATA.append("                ],\n");
-        METADATA.append("                \"name\": \"user\",\n");
+        METADATA.append("                \"name\": \"users\",\n");
+        METADATA.append("                \"alias\": \"users\",\n");
         METADATA.append("                \"enabled\": true\n");
         METADATA.append("              }\n");
         METADATA.append("            ],\n");
@@ -165,8 +166,9 @@ public class GeneratedGikkStreamUtilApplicationMetadata implements ApplicationMe
         METADATA.append("        \"name\": \"db0\",\n");
         METADATA.append("        \"typeName\": \"MySQL\",\n");
         METADATA.append("        \"ipAddress\": \"127.0.0.1\",\n");
+        METADATA.append("        \"connectionUrl\": \"jdbc:mysql://127.0.0.1:3306/?useUnicode\\u003dtrue\\u0026characterEncoding\\u003dUTF-8\\u0026useSSL\\u003dtrue\\u0026useServerPrepStmts\\u003dtrue\\u0026useCursorFetch\\u003dtrue\\u0026zeroDateTimeBehavior\\u003dconvertToNull\",\n");
         METADATA.append("        \"enabled\": true,\n");
-        METADATA.append("        \"username\": \"gikkman\"\n");
+        METADATA.append("        \"username\": \"gikkbot_user\"\n");
         METADATA.append("      }\n");
         METADATA.append("    ],\n");
         METADATA.append("    \"enabled\": true\n");

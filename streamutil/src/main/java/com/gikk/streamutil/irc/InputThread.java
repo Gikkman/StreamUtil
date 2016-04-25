@@ -58,12 +58,11 @@ class InputThread extends Thread{
             	connection.serverMessage("PING :" + System.currentTimeMillis());
             }
             catch (SocketException e) {
-            	//This probably means we force closed the socket. If the message is not "Socket closed", something else
-            	//happened.
+            	//This probably means we force closed the socket.
             	if( !(e.getMessage().indexOf("Socket Closed") >= 0) ){
             		e.printStackTrace();
-            		isConnected = false;
             	}
+            	isConnected = false;
 			}
             catch (IOException e) {
             	//Apparently, something went wrong with our line reading...	

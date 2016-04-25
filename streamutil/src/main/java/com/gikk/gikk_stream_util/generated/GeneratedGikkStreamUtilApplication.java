@@ -1,7 +1,7 @@
 package com.gikk.gikk_stream_util.generated;
 
 import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
-import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.UserManagerImpl;
+import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.UsersManagerImpl;
 import com.speedment.internal.core.runtime.SpeedmentApplicationLifecycle;
 import javax.annotation.Generated;
 
@@ -26,7 +26,7 @@ public abstract class GeneratedGikkStreamUtilApplication extends SpeedmentApplic
     public void onLoad() {
         super.onLoad();
         loadAndSetProject();
-        applyAndPut(UserManagerImpl::new);
+        applyAndPut(UsersManagerImpl::new);
         loadCustomManagers();
     }
 }

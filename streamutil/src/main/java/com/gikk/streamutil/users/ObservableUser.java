@@ -1,6 +1,7 @@
 package com.gikk.streamutil.users;
 
-import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
+import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
+
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -28,7 +29,7 @@ import javafx.beans.property.StringProperty;
  *
  */
 public class ObservableUser {
-	private User user;
+	private Users user;
 	private final SimpleStringProperty userName = new SimpleStringProperty();
 	private final SimpleStringProperty status = new SimpleStringProperty(UserStatus.REGULAR.toString());
 	private final SimpleIntegerProperty timeOnline = new SimpleIntegerProperty(0);
@@ -41,7 +42,7 @@ public class ObservableUser {
 	// ***********************************************************
 	// CONSTRUCTORS
 	// ***********************************************************
-	public ObservableUser(User user) {
+	public ObservableUser(Users user) {
 		this.user = user;
 		this.userName.set(user.getUsername());
 		this.status.set(user.getStatus());

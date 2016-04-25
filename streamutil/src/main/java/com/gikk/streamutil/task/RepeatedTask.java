@@ -11,7 +11,7 @@ import java.util.concurrent.ScheduledFuture;
  */
 public abstract class RepeatedTask implements GikkTask {	
 	
-	private ScheduledFuture<?> future;
+	protected ScheduledFuture<?> future;
 	
 	/**Schedules this task so that it is called periodically. A task will remain in the scheduling queue until
 	 * explicitly removed or until the program terminates. <br><br>
@@ -27,20 +27,22 @@ public abstract class RepeatedTask implements GikkTask {
 	}
 	
 	/** Calling this method will attempt to end this task.<br>
-	 *  If cancellation is successful, the onEnd method will be called. Cancellation might fail if
-	 *  the task has already been finished.
+	 *  If cancellation is successful, the <code>onEnd()</code> method will be called. Cancellation might fail if
+	 *  the task has already been finished.<br>
 	 * 
+	 * @param mayInterrupt {@code true} if the thread executing this
+     * task should be interrupted; otherwise, in-progress tasks are allowed
+     * to complete
 	 */
-	public final void endTask(){
+	public final void stopTask(boolean mayInterrupt){
 		if( future == null )
 			return;
 		
-		if( !future.cancel(false) ){
-			System.err.println("\tUnable to cancel task");
+		if( !future.cancel(mayInterrupt) ){
+			System.err.println(" Unable to cancel task");
 			return;
 		}
-		onEnd();
-		
+		onEnd();	
 	}
 	
 	//***********************************************************************************************

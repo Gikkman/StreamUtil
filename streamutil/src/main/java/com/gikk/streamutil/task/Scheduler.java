@@ -35,6 +35,14 @@ public class Scheduler {
 	//***********************************************************************************************
 	private Scheduler () { 
 		executor = new ScheduledThreadPoolExecutor(5);
+		
+		RepeatedTask t = new RepeatedTask() {		
+			@Override
+			public void onExecute() {
+				System.out.println("Completed: " + executor.getCompletedTaskCount() + " Scheduled; " + executor.getTaskCount());
+			}
+		};
+		scheduleRepeatedTask(t, 0, 5000);
 	}
 	
 	//***********************************************************************************************
@@ -60,19 +68,17 @@ public class Scheduler {
 	 * @param oneTimeTask The task to be executed
 	 * @param delayMillis How long we wait until we execute this task
 	 */
-	void scheduleOneTimeTask(OneTimeTask oneTimeTask, int delayMillis) {		
-		executor.schedule( () -> oneTimeTask.onExecute() , delayMillis, TimeUnit.MILLISECONDS);
+	ScheduledFuture<?> scheduleOneTimeTask(OneTimeTask oneTimeTask, int delayMillis) {		
+		return executor.schedule( () -> oneTimeTask.onExecute() , delayMillis, TimeUnit.MILLISECONDS);
 	}
 	//***********************************************************************************************
 	//											PRIVATE
 	//***********************************************************************************************
-	public void onProgramExit() {
-		//TODO: Find a convenient way to call this method...
-		
+	public void onProgramExit() {		
 		Thread thread = new Thread( () -> {
 			try {
 				executor.shutdown();
-				executor.awaitTermination(120, TimeUnit.SECONDS);
+				executor.awaitTermination(30, TimeUnit.SECONDS);
 				executor.shutdownNow();
 			} catch (Exception e) {
 				e.printStackTrace();

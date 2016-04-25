@@ -25,7 +25,7 @@
             <TextFlow prefHeight="0.0" prefWidth="542.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The bot is open source and can be found on GitHub: " />
-                  <Hyperlink text="https://github.com/Gikkman/StreamUtil" />
+                  <Hyperlink onAction="#click_openGithub" text="https://github.com/Gikkman/StreamUtil" />
                </children>
             </TextFlow>
             <Separator prefWidth="200.0" />

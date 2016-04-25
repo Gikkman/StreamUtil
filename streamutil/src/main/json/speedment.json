@@ -132,7 +132,8 @@
                     "enabled": true
                   }
                 ],
-                "name": "user",
+                "name": "users",
+                "alias": "users",
                 "enabled": true
               }
             ],
@@ -144,8 +145,9 @@
         "name": "db0",
         "typeName": "MySQL",
         "ipAddress": "127.0.0.1",
+        "connectionUrl": "jdbc:mysql://127.0.0.1:3306/?useUnicode\u003dtrue\u0026characterEncoding\u003dUTF-8\u0026useSSL\u003dtrue\u0026useServerPrepStmts\u003dtrue\u0026useCursorFetch\u003dtrue\u0026zeroDateTimeBehavior\u003dconvertToNull",
         "enabled": true,
-        "username": "gikkman"
+        "username": "gikkbot_user"
       }
     ],
     "enabled": true

@@ -32,8 +32,7 @@ public class Main extends Application{
 			
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest( (e) -> {
-				//TODO: Consider this: Should we use a MethodMapper instead of this?
-				GikkBot.GET().onProgramExit();
+//				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
 			} );
 			
@@ -48,8 +47,8 @@ public class Main extends Application{
 		
 		//A very ugly way of making sure the Singletons work and are initiated
 		try{ 
-			GikkBot.GET(); 
-			Scheduler.GET();
+		//	GikkBot.GET(); 
+		//	Scheduler.GET();
 		}
 		catch( Exception e) {
 			e.printStackTrace();

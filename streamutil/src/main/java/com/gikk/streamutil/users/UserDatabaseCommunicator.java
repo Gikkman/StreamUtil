@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
-import com.gikk.gikk_stream_util.db0.gikk_stream_util.user.User;
+import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
 import com.speedment.manager.Manager;
@@ -28,14 +28,14 @@ public class UserDatabaseCommunicator {
 	// 				VARIABLES
 	// ***********************************************************	
 	private final HashMap<String, ObservableUser> userCache = new HashMap<>(); 
-	private final Manager<User> userDatabase;
+	private final Manager<Users> userDatabase;
 	
 	// ***********************************************************
 	// 				CONSTRUCTOR
 	// ***********************************************************	
 	public UserDatabaseCommunicator(){
 		Speedment speedment = new GikkStreamUtilApplication().build();
-        userDatabase = speedment.managerOf(User.class);  
+        userDatabase = speedment.managerOf(Users.class);  
 	}
 	
 	// ***********************************************************
@@ -62,18 +62,16 @@ public class UserDatabaseCommunicator {
 		} );
 	}
 
-	/**Check the status of the user.
+	/**Fetch the status of the user.
 	 * 
 	 * @param userName
-	 * @return
+	 * @return This users {@link UserStatus}, or <code>null</code> if the user is not known
 	 */
-	public synchronized String checkUserStatus(String userName){
-		String out = "User " + userName + " unknown. Please check your spelling";
-		
+	public synchronized UserStatus checkUserStatus(String userName){		
 		if( isUserKnown(userName) )
-			out = retreiveUser(userName).getStatus();
+			return UserStatus.toUserStatus( retreiveUser(userName).getStatus() );
 		
-		return out;
+		return null;
 	}
 	
 	/**Fetches all information about a certain user
@@ -141,7 +139,7 @@ public class UserDatabaseCommunicator {
 		String name = userName.toLowerCase();
 		
 		return userDatabase.stream().parallel()
-					.filter( User.USERNAME.equal(name) )
+					.filter( Users.USERNAME.equal(name) )
 					.count() > 0;
 	}
 	
@@ -149,8 +147,8 @@ public class UserDatabaseCommunicator {
 	 * 
 	 */
 	private synchronized void clearUserDatabase() {
-		Set<User> users = userDatabase.stream().parallel().collect( Collectors.toSet() );
-		for( User u : users )
+		Set<Users> users = userDatabase.stream().parallel().collect( Collectors.toSet() );
+		for( Users u : users )
 			userDatabase.remove(u);
 	}
 	
@@ -159,10 +157,10 @@ public class UserDatabaseCommunicator {
 	 * @param status
 	 * @return List of all users with the given UserStatus. The list might be empty
 	 */
-	private synchronized List<User> fetchUsersOfStatus(UserStatus status){
+	private synchronized List<Users> fetchUsersOfStatus(UserStatus status){
 		String statusName = status.toString();
 		return userDatabase.stream()
-							.filter( User.STATUS.equal(statusName) )
+							.filter( Users.STATUS.equal(statusName) )
 							.collect( Collectors.toList() );
 	}
 	
@@ -173,7 +171,7 @@ public class UserDatabaseCommunicator {
 	 */
 	private synchronized ObservableUser createNewUserInDatabase(String userName){
 		String name = userName.toLowerCase();
-		User user = null;
+		Users user = null;
 		try {
             user = userDatabase.newEmptyEntity()
                 .setUsername(name)
@@ -209,8 +207,8 @@ public class UserDatabaseCommunicator {
 	 */
 	private synchronized ObservableUser fetchUserFromDatabase(String userName){
 		String name = userName.toLowerCase();
-		Optional<User> opt = userDatabase.stream().parallel()
-						.filter( User.USERNAME.equal(name) )
+		Optional<Users> opt = userDatabase.stream().parallel()
+						.filter( Users.USERNAME.equal(name) )
 						.findFirst();
 		
 		if( opt.isPresent() )

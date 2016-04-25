@@ -18,34 +18,22 @@
         <panes>
           <TitledPane fx:id="tp_4" animated="false" expanded="false" text="Step 4 - Twitch API access">
                <content>
-                  <Pane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-				        <fx:include source="Step%204.fxml" />
-                     </children>
+                  <Pane fx:id="pane_4" prefHeight="200.0" prefWidth="200.0">
                   </Pane>
                </content></TitledPane>
           <TitledPane fx:id="tp_3" animated="false" expanded="false" text="Step 3 - Twitch account">
                <content>
-                  <Pane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-				        <fx:include source="Step%203.fxml" />
-                     </children>
+                  <Pane fx:id="pane_3" prefHeight="200.0" prefWidth="200.0">
                   </Pane>
                </content></TitledPane>
           <TitledPane fx:id="tp_2" animated="false" expanded="false" text="Step 2 - Database">
                <content>
-                  <Pane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-				        <fx:include source="Step%202.fxml" />
-                     </children>
+                  <Pane fx:id="pane_2" prefHeight="200.0" prefWidth="200.0">
                   </Pane>
                </content></TitledPane>
           <TitledPane fx:id="tp_1" animated="false" prefWidth="572.0" text="Step 1 - Introduction">
                <content>
-                  <Pane prefHeight="200.0" prefWidth="200.0">
-                     <children>
-				        <fx:include source="Step%201.fxml" />
-                     </children>
+                  <Pane fx:id="pane_1" prefHeight="200.0" prefWidth="200.0">
                   </Pane>
                </content></TitledPane>
         </panes>

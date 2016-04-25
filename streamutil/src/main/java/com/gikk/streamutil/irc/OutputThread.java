@@ -127,6 +127,10 @@ class OutputThread extends Thread{
 				writer.flush();
 			}
 		} catch (IOException e){
+			if( e.getMessage().matches("Stream closed") ){
+				System.err.println("Cannot send message: " + message +" Stream closed");
+				return;
+			}
 			e.printStackTrace();
 		}
 	}
