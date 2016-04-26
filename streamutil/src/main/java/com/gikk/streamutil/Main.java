@@ -27,12 +27,12 @@ public class Main extends Application{
 		ClassLoader cl = this.getClass().getClassLoader();
 		        
 		try {
-			Scene scene = new Scene(FXMLLoader.load( cl.getResource("init/InitWindow.fxml") ) );
+			Scene scene = new Scene(FXMLLoader.load( cl.getResource("MainWindow.fxml") ) );
 			scene.getStylesheets().add( cl.getResource("application.css").toExternalForm() );
 			
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest( (e) -> {
-//				GikkBot.GET().onProgramExit();
+				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
 			} );
 			
@@ -47,8 +47,8 @@ public class Main extends Application{
 		
 		//A very ugly way of making sure the Singletons work and are initiated
 		try{ 
-		//	GikkBot.GET(); 
-		//	Scheduler.GET();
+			GikkBot.GET(); 
+			Scheduler.GET();
 		}
 		catch( Exception e) {
 			e.printStackTrace();

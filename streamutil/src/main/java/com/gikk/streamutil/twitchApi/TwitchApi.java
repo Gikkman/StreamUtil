@@ -19,6 +19,7 @@ import com.mb3364.twitch.api.handlers.ChannelFollowsResponseHandler;
 import com.mb3364.twitch.api.handlers.ChannelResponseHandler;
 import com.mb3364.twitch.api.handlers.ChannelSubscriptionsResponseHandler;
 import com.mb3364.twitch.api.handlers.StreamResponseHandler;
+import com.mb3364.twitch.api.handlers.UserFollowResponseHandler;
 import com.mb3364.twitch.api.models.Channel;
 
 /**<b>Singleton</b><br><br>
@@ -110,8 +111,13 @@ public class TwitchApi {
 		twitch.streams().get(channel, handler);
 	}
 	
-	public void getFollowers(ChannelFollowsResponseHandler handler){
-		twitch.channels().getFollows(channel, handler);
+	public void getFollowers(ChannelFollowsResponseHandler handler){	
+		RecursiveFollowerHandler reqursive = new RecursiveFollowerHandler(handler);
+		twitch.channels().getFollows(channel, new RequestParams(), reqursive);
+	}
+	
+	public void checkIfFollower(String userName, String channel, UserFollowResponseHandler handler){
+		twitch.users().getFollow(userName, channel, handler);		
 	}
 	
 	public void getSubscribers(ChannelSubscriptionsResponseHandler handler){
@@ -153,6 +159,12 @@ public class TwitchApi {
 					);
 			}
 		});	
+	}
+	
+	void getFollowers(int offset, ChannelFollowsResponseHandler handler){
+		RequestParams params = new RequestParams();
+		params.put("offset", offset);
+		twitch.channels().getFollows(channel, params, handler);
 	}
 
 	// ****************************************** ACCESS TOKEN *****************************************

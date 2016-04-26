@@ -265,7 +265,7 @@ public class StreamSettingsController extends _TabControllerBase{
 		}
 		
 		private void getFollowers(){
-			api.getFollowers( new SimpleChannelFollowerHandler() {				
+			api.getFollowers(new SimpleChannelFollowerHandler() {				
 				@Override
 				public void onSuccess(int total, List<ChannelFollow> follows) {
 					String count = String.valueOf(total);

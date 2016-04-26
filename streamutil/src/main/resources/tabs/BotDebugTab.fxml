@@ -10,5 +10,8 @@
       <TextField fx:id="txt_RawMessage" layoutX="14.0" layoutY="62.0" prefHeight="25.0" prefWidth="375.0" />
       <Label layoutX="14.0" layoutY="34.0" text="Raw Message" />
       <Button layoutX="403.0" layoutY="62.0" mnemonicParsing="false" onAction="#sendRawMessage" prefHeight="25.0" prefWidth="49.0" text="Go" />
+      <TextField fx:id="txt_UserName" layoutX="12.0" layoutY="150.0" prefHeight="25.0" prefWidth="375.0" />
+      <Label layoutX="14.0" layoutY="133.0" text="Check follower" />
+      <Button layoutX="402.0" layoutY="150.0" mnemonicParsing="false" onAction="#testFollower" prefHeight="25.0" prefWidth="49.0" text="Go" />
    </children>
 </AnchorPane>
