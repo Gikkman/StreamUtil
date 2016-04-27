@@ -1,12 +1,12 @@
 package com.gikk.streamutil;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import com.gikk.streamutil.irc.IrcListener;
 import com.gikk.streamutil.irc.TwitchIRC;
 import com.gikk.streamutil.irc.listeners.MaintainanceListener;
 import com.gikk.streamutil.irc.tasks.FetchAdminAndModsTask;
+import com.gikk.streamutil.misc.GikkProperties;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 import com.gikk.streamutil.users.UsersOnlineTracker;
@@ -32,7 +32,6 @@ import javafx.collections.ObservableList;
 	ClientID = YOUR_CLIENT_ID<br></code>
  * --------------------------------------------------<br><br>
  * 
- * TODO: Move this loading of the ini file to another class, and make the ini file gloabaly accessible, since it is needed in more than one place
  * 
  * @author Simon
  */
@@ -68,9 +67,7 @@ public class GikkBot{
 		IncrementOnlinetimeTask task = new IncrementOnlinetimeTask(userOnlineTracker);
 		task.schedule(60 * 1000, 60 * 1000);
 		
-		//Load the bots settings from a file named "gikk.ini" located in the users Home folder.
-		//In case we fail to connect, we retry 
-		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
+		File file = GikkProperties.GET().getPropertiesFile();
 		irc = new TwitchIRC(file);
 		irc.addIrcListener( new MaintainanceListener(userDatabaseCommunicator, userOnlineTracker) );		
 		irc.connect();

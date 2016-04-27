@@ -1,10 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
-<AnchorPane prefHeight="434.0" prefWidth="570.0" style="-fx-background-color: white" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep4Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="434.0" prefWidth="570.0" style="-fx-background-color: white" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep4Controller">
    <children>
-      <Button layoutX="259.0" layoutY="205.0" mnemonicParsing="false" onAction="#click_complete" text="Button" />
+      <VBox layoutX="14.0" layoutY="14.0" spacing="5.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The last thing we need to do is give our bot access to the Twitch API. This is needed for the bot to be able to probe the channel for information, as well as being able to update certain data on the channel (such as game and title)." wrappingWidth="541.076171875" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The button bellow will open a web page where you authorize access to your channel. The name of the application should match the name you registered on application you registered in Step 3. On this page, you can also see all the previliges the bot will have." wrappingWidth="541.0761838323087" />
+            <TextFlow prefHeight="0.0" prefWidth="542.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="From when you press the button, you will have" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" 60 seconds ">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="to accept the request. If you fail to do so, the button will re-activate and you can try again. " wrappingWidth="558.787109375" />
+               </children>
+            </TextFlow>
+            <HBox alignment="CENTER_LEFT" prefHeight="48.0" prefWidth="203.0" spacing="10.0">
+               <children>
+                  <Button fx:id="btn_Authorize" mnemonicParsing="false" onAction="#click_authorize" prefHeight="48.0" prefWidth="76.0" text="Authorize" />
+                  <Label fx:id="lbl_Countdown" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="25.0" prefWidth="25.0" text="60">
+                     <font>
+                        <Font name="System Bold" size="16.0" />
+                     </font>
+                  </Label>
+                  <ImageView fx:id="img_Status" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" />
+               </children>
+            </HBox>
+            <TextFlow prefHeight="0.0" prefWidth="542.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Now, if all the fields are filled out correctly and the authorization is completed, press " />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Finish">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" bellow. This will check that everything is okay. If not, it will report back potential problems and ask you to fix them." />
+               </children>
+            </TextFlow>
+            <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" spacing="20.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#click_finish" prefHeight="48.0" prefWidth="76.0" text="Finish" />
+                  <GridPane prefHeight="148.0" prefWidth="403.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="194.0" minWidth="10.0" prefWidth="78.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="340.0" minWidth="10.0" prefWidth="325.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label text="Directory: ">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <Label text="Database:" GridPane.rowIndex="1">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <Label text="IRC:" GridPane.rowIndex="2">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <Label text="API:" GridPane.rowIndex="3">
+                           <font>
+                              <Font name="System Bold" size="15.0" />
+                           </font>
+                        </Label>
+                        <ImageView fx:id="img_Dir" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" />
+                        <ImageView fx:id="img_Db" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <ImageView fx:id="img_Irc" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <ImageView fx:id="img_Api" fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                     </children>
+                  </GridPane>
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>

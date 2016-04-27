@@ -31,6 +31,20 @@ public class UserDatabaseCommunicator {
 	private final Manager<Users> userDatabase;
 	
 	// ***********************************************************
+	// 				STATIC
+	// ***********************************************************	
+	public static boolean checkConnection() throws Exception{
+		Speedment speedment = new GikkStreamUtilApplication().build();
+        Manager<Users> userDatabase = speedment.managerOf(Users.class);  
+		boolean init = userDatabase.isInitialized();
+		boolean load = userDatabase.isLoaded();
+		boolean strt = userDatabase.isStarted();
+		
+		System.out.println("UserDatabase: " + init + " " + load + " " + strt);
+		return init&&load&&strt;
+	}
+	
+	// ***********************************************************
 	// 				CONSTRUCTOR
 	// ***********************************************************	
 	public UserDatabaseCommunicator(){
@@ -40,8 +54,7 @@ public class UserDatabaseCommunicator {
 	
 	// ***********************************************************
 	// 				PUBLIC
-	// ***********************************************************	
-	
+	// ***********************************************************		
 	/**Fetch a list of users and sets their status
 	 * 
 	 * @param users Users whose status should be changed
@@ -157,6 +170,7 @@ public class UserDatabaseCommunicator {
 	 * @param status
 	 * @return List of all users with the given UserStatus. The list might be empty
 	 */
+	@SuppressWarnings("unused")
 	private synchronized List<Users> fetchUsersOfStatus(UserStatus status){
 		String statusName = status.toString();
 		return userDatabase.stream()

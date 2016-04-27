@@ -11,7 +11,6 @@ import java.nio.file.Paths;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
-import com.gikk.streamutil.misc.StackTrace;
 import com.mb3364.http.RequestParams;
 import com.mb3364.twitch.api.Twitch;
 import com.mb3364.twitch.api.auth.Scopes;
@@ -27,7 +26,8 @@ import com.mb3364.twitch.api.models.Channel;
  * This class handles all communication with Twitch. That includes retrieving information and assigning information. <br>
  * Most of the communication to Twitch is done asynchronously and handles response via different ResponeaHandlers.<br><br>
  * 
- * This class uses a <a href="https://github.com/ArcticLight/Java-Twitch-Api-Wrapper">https://github.com/ArcticLight/Java-Twitch-Api-Wrapper</a>
+ * This class uses <a href="https://github.com/gikkman/Java-Twitch-Api-Wrapper">https://github.com/gikkman/Java-Twitch-Api-Wrapper</a><br>
+ * which is a fork of <a href="https://github.com/ArcticLight/Java-Twitch-Api-Wrapper">https://github.com/ArcticLight/Java-Twitch-Api-Wrapper</a><br>
  * which is a fork of <a href="https://github.com/urgue/Java-Twitch-Api-Wrapper">https://github.com/urgue/Java-Twitch-Api-Wrapper</a>
  * 
  * @author Simon
@@ -58,23 +58,17 @@ public class TwitchApi {
 	private TwitchApi(){
 		twitch = new Twitch();
 		
-		//TODO: Load info from the .ini file
 		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
 	   	PropertiesConfiguration prop = new PropertiesConfiguration();
     	prop.setDelimiterParsingDisabled(true);
     	try {
 			prop.load(file);
 		} catch (ConfigurationException e1) {
-			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your User/ folder");
+			System.err.println("Could not load the properties file! Make sure you have a valid 'gikk.properties' in your assigned data folder");
 		}
-    	clientID = prop.getString("ClientID");
-    	channel = prop.getString("Channel").substring(1); //Since the channel has a # in the front, we need to remove that one.
-		
-		token = getToken();	
-		if( token.matches("" ) ){
-			System.err.println("Authentication token error. No token obtained. " + StackTrace.getStackPos());
-			System.exit(-1);
-		}
+    	clientID = prop.getString("clientID");
+    	channel = prop.getString("channel").substring(1); //Since the channel has a # in the front, we need to remove that one.
+		token = prop.getString("token");
 		
 		twitch.setClientId( clientID );
 		twitch.auth().setAccessToken(token);
@@ -112,12 +106,12 @@ public class TwitchApi {
 	}
 	
 	public void getFollowers(ChannelFollowsResponseHandler handler){	
-		RecursiveFollowerHandler reqursive = new RecursiveFollowerHandler(handler);
-		twitch.channels().getFollows(channel, new RequestParams(), reqursive);
+		RecursiveFollowerHandler recursive = new RecursiveFollowerHandler(handler);
+		twitch.channels().getFollows(channel, new RequestParams(), recursive);
 	}
 	
 	public void checkIfFollower(String userName, String channel, UserFollowResponseHandler handler){
-		twitch.users().getFollow(userName, channel, handler);		
+		twitch.users().getFollow(userName, channel, handler);
 	}
 	
 	public void getSubscribers(ChannelSubscriptionsResponseHandler handler){

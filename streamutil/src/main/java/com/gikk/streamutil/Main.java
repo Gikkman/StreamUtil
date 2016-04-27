@@ -2,6 +2,7 @@ package com.gikk.streamutil;
 
 import java.net.URISyntaxException;
 
+import com.gikk.streamutil.misc.GikkProperties;
 import com.gikk.streamutil.task.Scheduler;
 
 import javafx.application.Application;
@@ -27,13 +28,14 @@ public class Main extends Application{
 		ClassLoader cl = this.getClass().getClassLoader();
 		        
 		try {
-			Scene scene = new Scene(FXMLLoader.load( cl.getResource("MainWindow.fxml") ) );
+			Scene scene = new Scene(FXMLLoader.load( cl.getResource("init/InitWindow.fxml") ) );
 			scene.getStylesheets().add( cl.getResource("application.css").toExternalForm() );
 			
 			primaryStage.setScene(scene);
 			primaryStage.setOnCloseRequest( (e) -> {
-				GikkBot.GET().onProgramExit();
+		//		GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
+				GikkProperties.GET().clearProperties();//TODO: REMOVE
 			} );
 			
 			primaryStage.show();
@@ -47,13 +49,13 @@ public class Main extends Application{
 		
 		//A very ugly way of making sure the Singletons work and are initiated
 		try{ 
-			GikkBot.GET(); 
+		//	GikkBot.GET(); 
 			Scheduler.GET();
 		}
 		catch( Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
-		}		
+		}
 		
 		launch(args);
 	}

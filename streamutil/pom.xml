@@ -66,9 +66,9 @@
     <dependencies>
     	<!-- Twitch communication -->
         <dependency>
-			<groupId>com.github.arcticlight</groupId>
+			<groupId>com.github.gikkman</groupId>
 			<artifactId>Java-Twitch-Api-Wrapper</artifactId>
-			<version>0.3-x</version>
+			<version>0.4.4</version>
 		</dependency>
         
         <!-- Easy config files -->

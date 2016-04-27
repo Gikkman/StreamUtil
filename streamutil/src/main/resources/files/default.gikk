@@ -1,0 +1,9 @@
+nick = bot_account_name
+password = oauth:********************
+
+server = irc.twitch.tv
+port = 6667
+channel = #your_channel
+
+token =
+clientid = 

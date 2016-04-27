@@ -7,6 +7,7 @@ import com.gikk.streamutil.misc.OpenBrowser;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 
@@ -15,17 +16,18 @@ public class InitStep1Controller {
 	// 				VARIABLES
 	//***********************************************************
 	@FXML Text txt_directory;
+	@FXML TextField txt_accName;
 	private File directory = null;
 	
 	//***********************************************************
 	// 				PUBLIC
 	//***********************************************************	
-	public File getDirectory(){
-		
-		if( directory != null && directory.exists() && directory.isDirectory() )
-			return directory;
-
-		return null;
+	public File getDirectory(){		
+		return directory;
+	}
+	
+	public String getAccName(){
+		return txt_accName.getText();	
 	}
 	
 	//***********************************************************

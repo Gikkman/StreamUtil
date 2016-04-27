@@ -63,11 +63,11 @@ public class TwitchIRC {
 		}
     	
         // Fecth settings from our properties file
-        server 	= prop.getString("Server");
-        nick 	= prop.getString("Nick");
-        pass 	= prop.getString("Password");
-        channel = prop.getString("Channel");
-        port 	= prop.getInt("Port"); 
+        server 	= prop.getString("server");
+        nick 	= prop.getString("nick");
+        pass 	= prop.getString("password");
+        channel = prop.getString("channel");
+        port 	= prop.getInt("port"); 
         
         try{
         	socket = new Socket(server, port);
@@ -76,12 +76,12 @@ public class TwitchIRC {
         	e.printStackTrace();
         }
 		try {
-			writer = new BufferedWriter( new OutputStreamWriter(socket.getOutputStream( )));
+			writer = new BufferedWriter( new OutputStreamWriter(socket.getOutputStream()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		try {
-			reader = new BufferedReader( new InputStreamReader(socket.getInputStream( )));
+			reader = new BufferedReader( new InputStreamReader(socket.getInputStream()));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -264,7 +264,7 @@ public class TwitchIRC {
     		// A PING contains the message "PING MESSAGE", and we want to reply with MESSAGE as well
     		// Hence, we reply "PONG MESSAGE" . That's where the substring(5) comes from bellow, we strip
     		//out everything but the message
-    		serverMessage("PONG :" + message.getCommand() );
+    		serverMessage("PONG " + message.getCommand() );
     		channelMessage("We got pinged!");
     		
     		wasPing = true;

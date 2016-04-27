@@ -63,7 +63,8 @@ public class BotDebugTabController extends _TabControllerBase {
 			
 			@Override
 			public void onSuccess(UserFollow arg0) {
-				System.out.println("Success: Is follower");				
+				
+				System.out.println("Success: " + arg0.getChannel().getDisplayName() + " is follower");				
 			}
 		});
 	}

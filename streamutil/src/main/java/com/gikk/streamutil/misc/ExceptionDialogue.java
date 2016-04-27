@@ -3,6 +3,7 @@ package com.gikk.streamutil.misc;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
@@ -19,6 +20,20 @@ public class ExceptionDialogue {
 	//***********************************************************
 	// 				STATIC
 	//***********************************************************
+	public static void createAndShow(String header, String message) {
+		Platform.runLater( () -> {
+			Alert alert = create(header, message);
+			alert.showAndWait();
+		} );
+	}
+	
+	public static void createAndShow(Exception e) {
+		Platform.runLater( () -> {
+			Alert alert = create(e);
+			alert.showAndWait();
+		} );
+	}
+	
 	public static Alert create(String header, String content){
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle("Error Dialog");

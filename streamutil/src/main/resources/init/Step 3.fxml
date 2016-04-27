@@ -6,60 +6,103 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.text.TextFlow?>
 
 <AnchorPane prefHeight="434.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep3Controller">
    <children>
-      <TextFlow layoutX="14.0" layoutY="14.0" prefHeight="0.0" prefWidth="547.0">
+      <VBox layoutX="14.0" layoutY="14.0" spacing="5.0">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Next up, we are going to create the bot's Twitch account, so that it can chat it can connect to TwtichChat via IRC. Go to: " />
-            <Hyperlink onAction="#click_openSignup" text="https://www.twitch.tv/signup">
-               <padding>
-                  <Insets top="-2.0" />
-               </padding>
-            </Hyperlink>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" and create a new account." />
+            <TextFlow prefHeight="0.0" prefWidth="547.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="We need to create the bot's Twitch account, so that it can chat it can connect to TwitchChat via IRC and access the Twitch API. Go to: " />
+                  <Hyperlink onAction="#click_openSignup" text="https://www.twitch.tv/signup">
+                     <padding>
+                        <Insets top="-2.0" />
+                     </padding>
+                  </Hyperlink>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" and create a new account." />
+               </children>
+            </TextFlow>
+            <TextFlow prefHeight="17.0" prefWidth="547.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Log in to your bot's account.">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" Now, go to: " />
+                  <Hyperlink onAction="#click_openRegisterApp" text="https://www.twitch.tv/kraken/oauth2/clients/new" />
+               </children>
+            </TextFlow>
+            <ImageView fitHeight="153.0" fitWidth="397.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="NEVER">
+               <image>
+                  <Image url="@../register.JPG" />
+               </image>
+            </ImageView>
+            <TextFlow prefHeight="18.0" prefWidth="547.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Under Name, enter your " wrappingWidth="289.92578125" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="bot account's ">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="name. In case this name is already in use, you can enter something else. Under Redirect URI, enter: " />
+                  <TextField editable="false" prefHeight="18.0" prefWidth="118.0" style="-fx-background-color: f4f4f4;" text="http://127.0.0.1:23522">
+                     <padding>
+                        <Insets right="-5.0" top="1.0" />
+                     </padding>
+                  </TextField>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="  When you click Register, a new field should show called ClientID. Fill in the values bellow." />
+               </children>
+            </TextFlow>
+            <GridPane hgap="5.0" vgap="5.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="193.0" minWidth="10.0" prefWidth="107.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="441.0" minWidth="10.0" prefWidth="441.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <TextField fx:id="txt_name" prefHeight="25.0" prefWidth="252.0" GridPane.columnIndex="1" />
+                  <TextField fx:id="txt_clientID" prefHeight="25.0" prefWidth="252.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Bot account name:" underline="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Client ID:" GridPane.rowIndex="1" />
+               </children>
+            </GridPane>
+            <TextFlow prefHeight="32.0" prefWidth="553.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Now, go to " />
+                  <Hyperlink onAction="#click_openChatReg" prefHeight="0.0" prefWidth="157.0" text="https://twitchapps.com/tmi/">
+                     <padding>
+                        <Insets top="-2.0" />
+                     </padding>
+                  </Hyperlink>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="and click Connect with Twitch -&gt; Authorize, then paste the entire token bellow. This will let the bot into the chat channel" />
+               </children>
+            </TextFlow>
+            <GridPane prefHeight="25.0" prefWidth="356.0">
+               <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="107.0" minWidth="10.0" prefWidth="105.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+               </rowConstraints>
+               <children>
+                  <TextField fx:id="txt_oauth" prefHeight="25.0" prefWidth="255.0" text="oauth:*************************************" GridPane.columnIndex="1" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Token:" />
+               </children>
+            </GridPane>
          </children>
-      </TextFlow>
-      <TextFlow layoutX="14.0" layoutY="55.0" prefHeight="17.0" prefWidth="547.0">
-         <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Log in to your newly created account. Now, go to: " />
-            <Hyperlink onAction="#click_openRegisterApp" text="https://www.twitch.tv/kraken/oauth2/clients/new" />
-         </children>
-      </TextFlow>
-      <ImageView fitHeight="153.0" fitWidth="397.0" layoutX="14.0" layoutY="77.0" pickOnBounds="true" preserveRatio="true">
-         <image>
-            <Image url="@../register.JPG" />
-         </image>
-      </ImageView>
-      <TextFlow layoutX="14.0" layoutY="233.0" prefHeight="18.0" prefWidth="547.0">
-         <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Under Name, enter your new account's name. In case this name is already in use, you can enter something else. Under Redirect URI, enter: " wrappingWidth="289.92578125" />
-            <TextField editable="false" prefHeight="18.0" prefWidth="118.0" style="-fx-background-color: f4f4f4;" text="http://127.0.0.1:23522">
-               <padding>
-                  <Insets right="-5.0" top="1.0" />
-               </padding>
-            </TextField>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="  When you click Register, a new field should show called ClientID. Fill in the values bellow." />
-         </children>
-      </TextFlow>
-      <TextField fx:id="txt_name" layoutX="99.0" layoutY="292.0" prefHeight="25.0" prefWidth="267.0" />
-      <TextField fx:id="txt_clientID" layoutX="99.0" layoutY="325.0" prefHeight="25.0" prefWidth="267.0" />
-      <Text layoutX="14.0" layoutY="309.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Account name:" />
-      <Text layoutX="14.0" layoutY="342.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Client ID:" />
-      <TextFlow layoutX="14.0" layoutY="352.0" prefHeight="32.0" prefWidth="553.0">
-         <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Now, go to " />
-            <Hyperlink onAction="#click_openChatReg" prefHeight="0.0" prefWidth="157.0" text="https://twitchapps.com/tmi/">
-               <padding>
-                  <Insets top="-2.0" />
-               </padding>
-            </Hyperlink>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="and click Connect with Twitch -&gt; Authorize, then paste the entire token bellow. This will let the bot into the chat channel" />
-         </children>
-      </TextFlow>
-      <TextField fx:id="txt_oauth" layoutX="99.0" layoutY="390.0" prefHeight="25.0" prefWidth="267.0" text="oauth:*************************************" />
-      <Text layoutX="14.0" layoutY="407.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Token:" />
+      </VBox>
    </children>
 </AnchorPane>
