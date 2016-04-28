@@ -1,12 +1,13 @@
 package com.gikk.streamutil;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.gikk.streamutil.irc.IrcListener;
 import com.gikk.streamutil.irc.TwitchIRC;
 import com.gikk.streamutil.irc.listeners.MaintainanceListener;
 import com.gikk.streamutil.irc.tasks.FetchAdminAndModsTask;
-import com.gikk.streamutil.misc.GikkProperties;
+import com.gikk.streamutil.misc.GikkPreferences;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 import com.gikk.streamutil.users.UsersOnlineTracker;
@@ -67,10 +68,20 @@ public class GikkBot{
 		IncrementOnlinetimeTask task = new IncrementOnlinetimeTask(userOnlineTracker);
 		task.schedule(60 * 1000, 60 * 1000);
 		
-		File file = GikkProperties.GET().getPropertiesFile();
+		File file = GikkPreferences.GET().getPropertiesFile();
 		irc = new TwitchIRC(file);
 		irc.addIrcListener( new MaintainanceListener(userDatabaseCommunicator, userOnlineTracker) );		
-		irc.connect();
+		
+		try {
+			irc.connect();
+		} catch (IOException e) {
+			System.err.println("GikkBot failed to initialize. Check your internet connection, and that nothing uses port 6667");
+			e.printStackTrace();
+			
+			closeConnection();
+			return;
+		}
+		
 		addCapacity(Capacity.MEMBERS);
 		addCapacity(Capacity.COMMANDS);
 		
@@ -103,7 +114,7 @@ public class GikkBot{
 	}
 	
 	public void closeConnection() {
-		irc.closeConnection();
+		irc.disconnect();
 	}
 	
 	public void addIrcListener(IrcListener listener){

@@ -18,10 +18,12 @@ public class InitStep1Controller {
 	@FXML Text txt_directory;
 	@FXML TextField txt_accName;
 	private File directory = null;
-	
+
+
 	//***********************************************************
 	// 				PUBLIC
 	//***********************************************************	
+	
 	public File getDirectory(){		
 		return directory;
 	}

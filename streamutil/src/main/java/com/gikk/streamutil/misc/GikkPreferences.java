@@ -6,32 +6,33 @@ import java.util.prefs.Preferences;
 
 /**<b>Singleton</b><br><br>
  * 
- * This singleton is intended to simplify access to locally stored preferences
+ * This singleton is intended to simplify access to locally stored preferences and properties
  * 
  * @author Simon
  *
  */
-public class GikkProperties {
+public class GikkPreferences {
 	//***********************************************************
 	// 				VARIABLES
 	//***********************************************************
-	private static class HOLDER{ static final GikkProperties INSTANCE = new GikkProperties(); }
-	
+	private static class HOLDER{ static final GikkPreferences INSTANCE = new GikkPreferences(); }
 	private static final String FIRST_LAUNCH = "first_launch";
 	
 	private final Preferences preferences;
+	
+	private File properties = null;
 	//***********************************************************
 	// 				STATIC
 	//***********************************************************
-	public static GikkProperties GET(){
+	public static GikkPreferences GET(){
 		return HOLDER.INSTANCE;
 	}
 	
 	//***********************************************************
 	// 				CONSTRUCTOR
 	//***********************************************************	
-	private GikkProperties(){
-		preferences = Preferences.userNodeForPackage( GikkProperties.class );
+	private GikkPreferences(){
+		preferences = Preferences.userNodeForPackage( GikkPreferences.class );
 	}
 	
 	//***********************************************************
@@ -45,15 +46,30 @@ public class GikkProperties {
 		preferences.putBoolean(FIRST_LAUNCH, false);
 	}
 	
+	/**Fetches the properties File.<br>
+	 * Actually, this method fetches the file's location from preferences, and
+	 * then creates a file from that path.
+	 * 
+	 * @return File, representing the properties file or {@code null} if the file could not be found
+	 */
 	public final synchronized File getPropertiesFile(){
-		String props = preferences.get("properties", "");
+		if( this.properties != null )
+			return this.properties;
 		
-		if( props.isEmpty() ){
-			ExceptionDialogue.createAndShow("Missing properties file", "The properties file is missing. You must recreate it manually");
+		String propertiesLocation = preferences.get("properties", "");
+		
+		if( propertiesLocation.isEmpty() ){
+			System.err.println("Missing properties file: No file path regiestered");
 			return null;
 		}
 		
-		return new File(props);
+		File properties = new File(propertiesLocation);
+		if( properties.exists() && properties.isFile() && properties.canRead() ){
+			this.properties = properties;	
+			return properties;
+		}
+		System.err.println("Missing properties file: The properties file is missing.");
+		return null;
 	}
 	
 	public final synchronized void clearProperties(){

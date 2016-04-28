@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import com.gikk.streamutil.misc.Callback;
 import com.gikk.streamutil.misc.ExceptionDialogue;
 import com.gikk.streamutil.misc.OpenBrowser;
 import com.mb3364.twitch.api.Twitch;
@@ -32,6 +33,7 @@ public class InitStep4Controller implements Initializable{
 	//***********************************************************
 	// 				VARIABLES
 	//***********************************************************
+	
 	@FXML Button btn_Authorize;
 	@FXML Button btn_Finish;
 	
@@ -54,22 +56,13 @@ public class InitStep4Controller implements Initializable{
 	
 	private Image unknownIcon, okIcon, errorIcon;
 	
+	private Callback successCallback;
 	//***********************************************************
-	// 				PUBLIC
+	// 				CONSTRUCTOR
 	//***********************************************************
-	public void setOtherControllers(InitStep1Controller stp1, InitStep3Controller stp3){
-		this.stp1Controller = stp1;
-		this.stp3Controller = stp3;
+	public InitStep4Controller(){
 		
-		twitch = new Twitch();
-		
-		//This task is for asynchronously fetching the API token
-		task = new FetchTwitchTokenTask(twitch, 
-										() -> onSuccess(),
-										() -> onFail(),
-										() -> onTick() );
 	}
-
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		ClassLoader cl = getClass().getClassLoader();
@@ -82,23 +75,47 @@ public class InitStep4Controller implements Initializable{
 		}
 		
 		img_Status.setImage(unknownIcon);
-		img_Api.setImage(unknownIcon);
-		img_Db.setImage(unknownIcon);
-		img_Dir.setImage(unknownIcon);
-		img_Irc.setImage(unknownIcon);
-	}	
+		setUnknowStatuses();
+		
+		//Twitch API
+		twitch = new Twitch();
+		
+		//This task is for asynchronously fetching the API token
+		task = new FetchTwitchTokenTask(twitch, 
+										() -> onAuthSuccess(),
+										() -> onAuthFail(),
+										() -> onAuthTick() );
+		
+	}
 	
+	//***********************************************************
+	// 				PUBLIC
+	//***********************************************************
+	public void setOtherControllers(InitStep1Controller stp1, InitStep3Controller stp3){
+		this.stp1Controller = stp1;
+		this.stp3Controller = stp3;
+	}
+	
+	public void setSuccessCallback(Callback callback) {
+		this.successCallback = callback;
+	}
+
 	//***********************************************************
 	// 				FXML BUTTON METHODS
 	//***********************************************************
 	@FXML protected void click_finish(ActionEvent e){
+		btn_Finish.setDisable(true);
+		setUnknowStatuses();
+		
 		CheckInitTask initTask = new CheckInitTask(
 				stp1Controller.getAccName(),
 				stp1Controller.getDirectory(), 
 				stp3Controller.getName(),
 				clientID, 
 				stp3Controller.getAuth(), 
-				token);
+				token,
+				() -> onCheckInitSuccess(),
+				() -> onCheckInitFailed() );
 		initTask.setDirectoryView(img_Dir);
 		initTask.setDbView(img_Db);
 		initTask.setIrcView(img_Irc);
@@ -106,13 +123,14 @@ public class InitStep4Controller implements Initializable{
 		initTask.setErrorIcon(errorIcon);
 		initTask.setOkIcon(okIcon);
 		initTask.schedule(0);
+		
 	}
 	
 	@FXML protected void click_authorize(ActionEvent e){
 		/* We store a copy of the clientID in case the user were to change the clientID field
 		 * in step 3 before pressing the Finish button. By caching it, we make sure that the token
 		 * we have is related to this clientID 
-		 */
+		 */		
 		clientID = stp3Controller.getClientID();	
 		
 		/* We disable the button whilst the authorization process runs, so
@@ -128,9 +146,27 @@ public class InitStep4Controller implements Initializable{
 	}
 	
 	//***********************************************************
-	// 				CALLBACKS
+	// 				PRIVATE
 	//***********************************************************
-	private void onSuccess() {
+	private void setUnknowStatuses() {
+		img_Api.setImage(unknownIcon);
+		img_Db.setImage(unknownIcon);
+		img_Dir.setImage(unknownIcon);
+		img_Irc.setImage(unknownIcon);
+	}
+	
+	//***********************************************************
+	// 				CALLBACKS
+	//***********************************************************	
+	private void onCheckInitSuccess(){
+		successCallback.execute();
+	}
+	
+	private void onCheckInitFailed(){
+		Platform.runLater( () -> btn_Finish.setDisable(false) );
+	}
+	
+	private void onAuthSuccess() {
 		/* On success, we change to the success-icon and we fetch the token. We do not re-activate
 		 * the button, since it will not be needed anymore 
 		 */
@@ -141,7 +177,7 @@ public class InitStep4Controller implements Initializable{
 		} );
 	}
 
-	private void onFail() {
+	private void onAuthFail() {
 		/* On fail, we show an error dialogue, telling the user what went wrong.
 		 * 
 		 * We also update the UI to display the error-icon, and reactivate the Authenticate button
@@ -157,7 +193,7 @@ public class InitStep4Controller implements Initializable{
 		});
 	}
 
-	private void onTick() {
+	private void onAuthTick() {
 		int seconds = Integer.parseInt( lbl_Countdown.getText() ) - 1;
 		/* Count down the time that is left until we time out. Also, if the image is
 		 * not the "unknown" icon, change to it
@@ -193,7 +229,5 @@ public class InitStep4Controller implements Initializable{
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	
+	}	
 }

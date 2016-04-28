@@ -16,7 +16,7 @@
 
 <AnchorPane prefHeight="434.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep3Controller">
    <children>
-      <VBox layoutX="14.0" layoutY="14.0" spacing="5.0">
+      <VBox layoutX="14.0" layoutY="14.0" prefHeight="404.0" prefWidth="538.0" spacing="5.0">
          <children>
             <TextFlow prefHeight="0.0" prefWidth="547.0">
                <children>
@@ -37,12 +37,15 @@
                      </font>
                   </Text>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" Now, go to: " />
-                  <Hyperlink onAction="#click_openRegisterApp" text="https://www.twitch.tv/kraken/oauth2/clients/new" />
+                  <Hyperlink onAction="#click_openRegisterApp" text="https://www.twitch.tv/kraken/oauth2/clients/new">
+                     <padding>
+                        <Insets top="-2.0" />
+                     </padding></Hyperlink>
                </children>
             </TextFlow>
             <ImageView fitHeight="153.0" fitWidth="397.0" pickOnBounds="true" preserveRatio="true" VBox.vgrow="NEVER">
                <image>
-                  <Image url="@../register.JPG" />
+                  <Image url="@../img/register.JPG" />
                </image>
             </ImageView>
             <TextFlow prefHeight="18.0" prefWidth="547.0">

@@ -1,5 +1,6 @@
 package com.gikk.streamutil.users;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,7 @@ import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
+import com.speedment.internal.util.MetadataUtil;
 import com.speedment.manager.Manager;
 
 import javafx.application.Platform;
@@ -29,20 +31,6 @@ public class UserDatabaseCommunicator {
 	// ***********************************************************	
 	private final HashMap<String, ObservableUser> userCache = new HashMap<>(); 
 	private final Manager<Users> userDatabase;
-	
-	// ***********************************************************
-	// 				STATIC
-	// ***********************************************************	
-	public static boolean checkConnection() throws Exception{
-		Speedment speedment = new GikkStreamUtilApplication().build();
-        Manager<Users> userDatabase = speedment.managerOf(Users.class);  
-		boolean init = userDatabase.isInitialized();
-		boolean load = userDatabase.isLoaded();
-		boolean strt = userDatabase.isStarted();
-		
-		System.out.println("UserDatabase: " + init + " " + load + " " + strt);
-		return init&&load&&strt;
-	}
 	
 	// ***********************************************************
 	// 				CONSTRUCTOR
@@ -112,6 +100,46 @@ public class UserDatabaseCommunicator {
 	
 	public synchronized void onProgramExit(){
 		flushToDatabase();
+	}
+	
+	/**Tests that our current MySQL database is compatible with the Speedment
+	 * code we have.
+	 * 
+	 * @return {@code true} if the connection is compatible and we manage to write to it
+	 * @throws IOException Thrown if the connection is not compatible
+	 */
+	public static boolean checkConnection() throws IOException{
+		Speedment speedment = new GikkStreamUtilApplication().build();
+        Manager<Users>userDatabase = speedment.managerOf(Users.class); 
+        
+		boolean init = userDatabase.isInitialized();
+		boolean load = userDatabase.isLoaded();
+		boolean strt = userDatabase.isStarted();
+		
+		//This method adds and then removes a user from the database,
+		//to make sure everything works as intended.
+		StringBuilder builder = new StringBuilder();
+		
+		try {
+			userDatabase.newEmptyEntity()
+				.setUsername("TEMPORARY_TEST_USER_FOR_TESTING")
+				.setIsFollower(false)
+				.setIsSubscriber(false)
+				.setIsTrusted(false)
+				.setLinesWritten(0)
+				.setTimeOnline(0)
+				.setStatus( UserStatus.REGULAR.toString() )
+				.persist(  MetadataUtil.toText( builder::append ) )
+				.remove( MetadataUtil.toText( builder::append )  );
+		} catch (Exception e){
+			//We find the 'throwable = <REASON>' part of the message and put that as Throw message,
+			//then we throw the entire error
+			String message = builder.toString();		
+			int idx = message.indexOf("throwable = ") + "throwable = ".length();		
+			throw new IOException("Database error: " + message.substring(idx), new Throwable(message));
+		}
+		
+		return init&&load&&strt;
 	}
 
 	// ***********************************************************

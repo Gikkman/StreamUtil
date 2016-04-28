@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import com.gikk.streamutil.task.Scheduler;
-
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 public class InitWindowController implements Initializable {
 	//***********************************************************
@@ -23,7 +26,9 @@ public class InitWindowController implements Initializable {
 	
 	@FXML Accordion acn_box;
 	@FXML TitledPane tp_1; @FXML TitledPane tp_2; @FXML TitledPane tp_3; @FXML TitledPane tp_4;
-	@FXML Pane pane_1; @FXML Pane pane_2; @FXML Pane pane_3; @FXML Pane pane_4;
+	@FXML Pane pane_1; @FXML Pane pane_2; @FXML Pane pane_3; @FXML Pane pane_4; 
+	
+	private Parent pane_last;
 	
 	private InitStep1Controller stp1;
 	private InitStep3Controller stp3;
@@ -38,26 +43,44 @@ public class InitWindowController implements Initializable {
 		loadPane2();
 		loadPane3();
 		loadPane4();
+		loadPaneLast();
 		
 		acn_box.setExpandedPane(tp_1);
 		tp_1.requestFocus();
-		
-		Scheduler.GET();
 	}
 
+	//***********************************************************
+	// 				PRIVATE
+	//***********************************************************
+	private void onInitSuccess() {
+		//Since this callback can be called from any thread, we need to schedule it on the Platform
+		Platform.runLater(() -> {
+			Stage stage = new Stage( );
+			Scene scene = new Scene( pane_last );
+			
+			stage.setScene(scene);
+			stage.setResizable(false);
+			stage.setTitle("Initialization process - Complete");
+			stage.initModality( Modality.APPLICATION_MODAL );
+			stage.showAndWait();
+			
+			//Close this stage. Since we are closing it programmatically, we need to fire the CloseRequest manually
+			Stage primaryStage = (Stage) acn_box.getScene().getWindow();
+				  primaryStage.fireEvent( new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST) );
+				  primaryStage.close();
+		} );
+	}	
+	
 	private void loadPane1() {
 		try {					
 			FXMLLoader loader = new FXMLLoader( cl.getResource( DIRECTORY + "Step 1.fxml" ) );
 			Parent p = loader.load();		
-			pane_1.getChildren().add(p);
-			
+			pane_1.getChildren().add(p);		
 			stp1 = loader.getController();
 		} catch (IOException e) {
 			System.err.println("Could not load FXML document");
 			e.printStackTrace();
-		}
-		
-		
+		}		
 	}	
 	
 	private void loadPane2() {
@@ -92,17 +115,20 @@ public class InitWindowController implements Initializable {
 			
 			InitStep4Controller stp4 = loader.getController();
 			stp4.setOtherControllers(stp1, stp3);
+			stp4.setSuccessCallback( () -> onInitSuccess() );
 		} catch (IOException e) {
 			System.err.println("Could not load FXML document");
 			e.printStackTrace();
 		}
-	}	
+	}
 	
-	//***********************************************************
-	// 				PUBLIC
-	//***********************************************************	
-
-	//***********************************************************
-	// 				PRIVATE
-	//***********************************************************	
+	private void loadPaneLast() {
+		try {					
+			FXMLLoader loader = new FXMLLoader( cl.getResource( DIRECTORY + "Step Last.fxml" ) );
+			pane_last = loader.load();		
+		} catch (IOException e) {
+			System.err.println("Could not load FXML document");
+			e.printStackTrace();
+		}
+	}
 }

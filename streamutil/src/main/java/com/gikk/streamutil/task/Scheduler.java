@@ -35,14 +35,6 @@ public class Scheduler {
 	//***********************************************************************************************
 	private Scheduler () { 
 		executor = new ScheduledThreadPoolExecutor(5);
-		
-		RepeatedTask t = new RepeatedTask() {		
-			@Override
-			public void onExecute() {
-				System.out.println("Completed: " + executor.getCompletedTaskCount() + " Scheduled; " + executor.getTaskCount());
-			}
-		};
-		scheduleRepeatedTask(t, 0, 5000);
 	}
 	
 	//***********************************************************************************************
@@ -77,8 +69,20 @@ public class Scheduler {
 	public void onProgramExit() {		
 		Thread thread = new Thread( () -> {
 			try {
-				executor.shutdown();
+				System.out.println();
+				System.out.println("\tThere are currently " + executor.getQueue().size()+ " task scheduled.\n"
+								 + "\tThere are currently " + executor.getActiveCount() + " tasks executing.\n"
+						 		 + "\tAttempting shutdown...");
+				executor.shutdown(); 
 				executor.awaitTermination(30, TimeUnit.SECONDS);
+
+				if( executor.getActiveCount() == 0) {
+					return;
+				}
+				
+				System.out.println();
+				System.out.println("\tThere are still " + executor.getActiveCount() + " tasks executing.\n"
+								 + "\tForcing shutdown...");
 				executor.shutdownNow();
 			} catch (Exception e) {
 				e.printStackTrace();

@@ -151,29 +151,36 @@ public class TwitchIRC {
         
     /**Connects to the Twitch server and joins the appropriate channel.
      * 
-     * @return True if both connections succeeded
+     * @throws IOException In case the BufferedReader or BufferedWriter throws an error during connection. Might be due to timeout, socket closing or something else
+     * 
      */
-    public void connect(){
+    public boolean connect() throws IOException{
     	if( isConnected ){
 	    	System.err.println("\tAlready connected to a server!");
-	    	return;
+	    	return false;
     	}    		
     	
-    	//TODO: This should be handled differently. Consider making this actually throw the errors that might occur.
     	isConnected = doConnect();
-    	isJoined    = doJoin();
-    	
-    	inThread.start();
-    	outThread.start();
-    	
-    	channelMessage("Hello! " + getNick() + " at your service!");
+    	if( isConnected ){
+    		isJoined    = doJoin();
+    	} 
+    	if( isJoined ){
+    		inThread.start();
+    		outThread.start();   	
+    		channelMessage("Hello! " + getNick() + " at your service!"); 
+    		
+    		return true;
+    	}  	
+    	return false;
     }
 
 	/**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
-     * frees all resources.
+     * frees all resources. <br><br>
+     * 
+     * It is safe to call this method even if connections are already closed
      * 
      */
-	public void closeConnection() {
+	public void disconnect() {
 		//Since several sources can call this method on program shutdown, we avoid entering it again if 
 		//we've already disconnected
 		if( !isConnected )
@@ -207,50 +214,42 @@ public class TwitchIRC {
 	//***********************************************************************************************
 	//										PRIVATE and PACKAGE
 	//***********************************************************************************************	
-	private boolean doConnect(){
+	private boolean doConnect() throws IOException{
 		// Log on to the server.
-        try {
-			writer.write("PASS " + pass + "\r\n");
-	        writer.write("NICK " + nick + "\r\n");
-	        writer.write("USER " + nick + " 8 * : GikkBot\r\n");
-	        writer.flush( );
-        } catch (IOException e) {
-        	e.printStackTrace();
-        }
+		writer.write("PASS " + pass + "\r\n");
+        writer.write("NICK " + nick + "\r\n");
+        writer.write("USER " + nick + " 8 * : GikkBot\r\n");
+        writer.flush( );
+        
         
         // Read lines from the server until it tells us we have connected.
         String line = null;
-        try {
-			while ((line = reader.readLine()) != null) {
-				System.out.println("IN  " + line);
-				
-				if( serverName.isEmpty() )
-					serverName = line.substring(0, line.indexOf(" "));
-			    if (line.indexOf("004") >= 0) {
-			        return true;
-			    }
-			    else if (line.indexOf("433") >= 0) {
-			        System.out.println("Nickname is already in use.");
-			        return false;
-			    }
-			    //TODO: Other error codes
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+		while ((line = reader.readLine()) != null) {
+			System.out.println("IN  " + line);
+			
+			if( serverName.isEmpty() )
+				serverName = line.substring(0, line.indexOf(" "));
+		    if (line.indexOf("004") >= 0) {
+		        return true;
+		    }
+		    else if (line.indexOf("433") >= 0) {
+		        System.out.println("Nickname is already in use.");
+		        return false;
+		    }
+		    else if (line.indexOf("Error logging in") >= 0) {
+		    	return false;
+		    }
 		}
+		//We hit this return if the reader timed out, or we reached the end of stream
         return false;
 	}
 	
-    private boolean doJoin(){
+    private boolean doJoin() throws IOException{
         // Join the channel.
-        try {
-			writer.write("JOIN " + channel + "\r\n");
-			writer.flush( );
-			return true;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}       
+		writer.write("JOIN " + channel + "\r\n");
+		writer.flush( );
+		return true;
+    
     }
     
 	void incommingMessage(String line){

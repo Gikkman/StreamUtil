@@ -1,11 +1,6 @@
 package com.gikk.streamutil.twitchApi;
 
-import java.awt.Desktop;
 import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -13,7 +8,6 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 
 import com.mb3364.http.RequestParams;
 import com.mb3364.twitch.api.Twitch;
-import com.mb3364.twitch.api.auth.Scopes;
 import com.mb3364.twitch.api.handlers.ChannelFollowsResponseHandler;
 import com.mb3364.twitch.api.handlers.ChannelResponseHandler;
 import com.mb3364.twitch.api.handlers.ChannelSubscriptionsResponseHandler;
@@ -66,7 +60,8 @@ public class TwitchApi {
 		} catch (ConfigurationException e1) {
 			System.err.println("Could not load the properties file! Make sure you have a valid 'gikk.properties' in your assigned data folder");
 		}
-    	clientID = prop.getString("clientID");
+    	
+    	clientID = prop.getString("clientid");
     	channel = prop.getString("channel").substring(1); //Since the channel has a # in the front, we need to remove that one.
 		token = prop.getString("token");
 		
@@ -159,62 +154,5 @@ public class TwitchApi {
 		RequestParams params = new RequestParams();
 		params.put("offset", offset);
 		twitch.channels().getFollows(channel, params, handler);
-	}
-
-	// ****************************************** ACCESS TOKEN *****************************************
-	
-	//TODO: This should be part of the initial INIT chain
-	private String getToken() {
-		File file = new File("res/twitch.token");	
-		String path = file.getAbsolutePath();
-		
-		//If a file "token" already exists, we read that token and return it
-		if( file.exists() ){
-			try {				
-				return new String(Files.readAllBytes( Paths.get(path) ) );
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		//Otherwise, we have to create a new authentication token
-		} else {
-			try {
-				URI callbackUri = new URI("http://127.0.0.1:23522");
-				String authUrl = twitch.auth().getAuthenticationUrl(clientID, callbackUri, Scopes.CHANNEL_EDITOR, Scopes.CHANNEL_COMMERCIAL, Scopes.CHANNEL_SUBSCRIPTIONS, Scopes.CHANNEL_CHECK_SUBSCRIPTION );
-				//Open a browser and show a twitch-authentication prompt
-				promptForAuthentication(authUrl);	//TODO: Ask the user if they want this prompt
-				
-				boolean authSuccess = twitch.auth().awaitAccessToken();
-				if (authSuccess){
-					String token = twitch.auth().getAccessToken();
-					
-					//Create a file for the received token, so we don't have to go through this process again
-					file.createNewFile();
-					Files.write(Paths.get(path), token.getBytes());
-					
-					return token;
-				} else {
-					System.err.println( twitch.auth().getAuthenticationError() );
-				}
-			} catch (URISyntaxException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		//If we failed to authenticate or an error occurred
-		return "";
-	}
-
-	private void promptForAuthentication(String url) {
-		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-		if (desktop != null && desktop.isSupported( Desktop.Action.BROWSE)){
-			try{
-				desktop.browse( URI.create(url) );
-			} catch (Exception e){
-				e.printStackTrace();
-			}			
-		} else {
-			System.err.println("Desktop is not supported. Cannot create Auth-prompt");
-		}
 	}
 }
