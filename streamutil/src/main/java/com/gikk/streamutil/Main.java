@@ -65,7 +65,6 @@ public class Main extends Application{
 			primaryStage.setOnCloseRequest( (e) -> {
 				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
-				GikkPreferences.GET().clearProperties(); //TODO: REMOVE
 			} );	
 			primaryStage.setTitle("GikkBot dashboard");
 		} catch(Exception e) {

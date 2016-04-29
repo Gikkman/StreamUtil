@@ -19,7 +19,6 @@ class InputThread extends Thread{
 	//***********************************************************************************************
 	private final TwitchIRC connection;
 	private final BufferedReader reader;
-	private final BufferedWriter writer;
 	
 	private boolean isConnected = true;
 	
@@ -29,21 +28,17 @@ class InputThread extends Thread{
 	public InputThread(TwitchIRC connection, BufferedReader reader, BufferedWriter writer){
 		this.connection = connection;
 		this.reader  = reader;
-		this.writer  = writer;
 		
 		this.setName("GikkBot-InputThread");
 	}
 	
 	@Override
-	public void run() {
-		
+	public void run() {		
         while (isConnected) {
             try {
                 String line = null;
-                while ( (line = reader.readLine()) != null ) {
-                	
+                while ( (line = reader.readLine()) != null ) {           	
                 	try{
-	                	//TODO: Concider maybe doing this on a separate thread. So if something messes up, we don't crash...
 	                	connection.incommingMessage(line);
                 	} catch (Exception e) {
                 		System.err.println("Error in handling the incomming Irc Message");
@@ -55,7 +50,7 @@ class InputThread extends Thread{
             }
             catch (SocketTimeoutException e){
             	//If we time out, that means we haven't seen anything from server in a while, so we ping it
-            	connection.serverMessage("PING :" + System.currentTimeMillis());
+            	connection.serverMessage("PING " + System.currentTimeMillis());
             }
             catch (SocketException e) {
             	//This probably means we force closed the socket.
@@ -69,9 +64,11 @@ class InputThread extends Thread{
             	e.printStackTrace();
             }
         }
+        
 		//If we have been disconnected, we close the connection and clean up the resources held by the IrcConnection.
-        //The conncetion might already have been closed, but that is not a problem
-		connection.disconnect();
+        //However, if we are disconnected intentionally, we don't need to try to disconnect again
+		if( connection.isConnected() )
+			connection.disconnect();
 	}
 
 	//***********************************************************************************************
@@ -79,5 +76,8 @@ class InputThread extends Thread{
 	//***********************************************************************************************
 	public void end() {
 		isConnected = false;
+	}
+	public boolean isConnected(){
+		return isConnected;
 	}
 }

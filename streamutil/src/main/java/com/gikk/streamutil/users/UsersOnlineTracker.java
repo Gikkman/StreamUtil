@@ -1,5 +1,8 @@
 package com.gikk.streamutil.users;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,20 +29,22 @@ public class UsersOnlineTracker {
 	}
 	
 	public void partUser(String user) {
-		ObservableUser u = database.retreiveUser(user );
+		ObservableUser u = database.getOrCreate(user );
 		Platform.runLater( () -> {
 			usersOnline.remove(u);
 		});
 	}
 	
 	public void joinUser(String ... users ){
-		ObservableUser[] oUsers = new ObservableUser[ users.length ];
+		List<ObservableUser> oUsers = new LinkedList<>();
 		for( int i = 0; i < users.length; i++ )
-			oUsers[i] = database.retreiveUser( users[i] );
+			oUsers.add( database.getOrCreate( users[i] ) );		
 		
 		Platform.runLater( () -> {
+			//TODO: If I find time, I want to make this better
 			for( ObservableUser oUser : oUsers )
-				usersOnline.add(oUser);
+				if( !usersOnline.contains(oUser) )
+					usersOnline.add(oUser);
 		});
 	}
 	

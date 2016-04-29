@@ -15,4 +15,8 @@ public interface IrcListener {
 	public default void onNotice( IrcMessage message ) {}
 	
 	public default void onUnknown( IrcMessage message ) {}
+
+	public default void onMode(IrcMessage message) {}
+
+	public default void onDisconnect() {}
 }

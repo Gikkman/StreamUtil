@@ -172,12 +172,12 @@ class CheckInitTask extends OneTimeTask {
 				 */
 				createPropFile();
 				Platform.runLater( () -> dirView.setImage(okIcon) );
+				System.out.println("****Directory check performed. All okay!");
 				return false;
 			} catch (Exception e) {
 				markError(dirView, e);
 			}		
 		}
-		System.out.println("****Directory check performed. All okay!");
 		return true;
 	}
 

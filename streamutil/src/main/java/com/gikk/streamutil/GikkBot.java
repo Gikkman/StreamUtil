@@ -1,13 +1,20 @@
 package com.gikk.streamutil;
 
 import java.io.File;
-import java.io.IOException;
 
 import com.gikk.streamutil.irc.IrcListener;
 import com.gikk.streamutil.irc.TwitchIRC;
+import com.gikk.streamutil.irc.commands.Command_Lines;
+import com.gikk.streamutil.irc.commands.Command_Stats;
+import com.gikk.streamutil.irc.commands.Command_Tick;
+import com.gikk.streamutil.irc.commands.Command_Time;
+import com.gikk.streamutil.irc.commands.Command_Trust;
+import com.gikk.streamutil.irc.listeners.CheckFollowListener;
 import com.gikk.streamutil.irc.listeners.MaintainanceListener;
-import com.gikk.streamutil.irc.tasks.FetchAdminAndModsTask;
+import com.gikk.streamutil.irc.tasks.ConnectIrcTask;
+import com.gikk.streamutil.irc.tasks.FetchAdminAndModTask;
 import com.gikk.streamutil.misc.GikkPreferences;
+import com.gikk.streamutil.twitchApi.TwitchApi;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 import com.gikk.streamutil.users.UsersOnlineTracker;
@@ -41,7 +48,7 @@ public class GikkBot{
 	//											VARIABLES
 	//***********************************************************************************************
 	private static class HOLDER { static final GikkBot INSTANCE = new GikkBot(); };
-	enum Capacity {MEMBERS, COMMANDS, TAGS};
+	
 	
 	private final TwitchIRC irc;
 	private final UserDatabaseCommunicator userDatabaseCommunicator;
@@ -70,31 +77,24 @@ public class GikkBot{
 		
 		File file = GikkPreferences.GET().getPropertiesFile();
 		irc = new TwitchIRC(file);
-		irc.addIrcListener( new MaintainanceListener(userDatabaseCommunicator, userOnlineTracker) );		
+		irc.addIrcListener( new MaintainanceListener(userDatabaseCommunicator, userOnlineTracker, irc) );		
+		irc.addIrcListener( new CheckFollowListener( userDatabaseCommunicator ));
 		
-		try {
-			irc.connect();
-		} catch (IOException e) {
-			System.err.println("GikkBot failed to initialize. Check your internet connection, and that nothing uses port 6667");
-			e.printStackTrace();
-			
-			closeConnection();
-			return;
-		}
+		//Asynchronous tasks. These are executed asynchronously to increase responsiveness in the UI.
+		ConnectIrcTask.CREATE_AND_SCHEDULE(irc);
+		FetchAdminAndModTask.CREATE_AND_SCHEDULE(this, userDatabaseCommunicator);
 		
-		addCapacity(Capacity.MEMBERS);
-		addCapacity(Capacity.COMMANDS);
-		
-		FetchAdminAndModsTask.CREATE_AND_SCHEDULE(this, userDatabaseCommunicator);
+		addCommands();
+		TwitchApi.GET().addOnNewFollowerListener((follower, total, isNew) ->  { if(isNew) channelMessage("New follower: " + follower); } );
 	}
-	
+
 	//***********************************************************************************************
 	//											PUBLIC
 	//***********************************************************************************************
 	public void channelMessage(String message){
 		irc.channelMessage(message);
 		//Remember to update the number of line our bot's written :-)
-		userDatabaseCommunicator.incrementWrittenRows( irc.getNick() , 1);
+		userDatabaseCommunicator.getOrCreate( irc.getNick() ).addLinesWritten(1);
 	}
 	
 	public void clearChat(){
@@ -111,10 +111,6 @@ public class GikkBot{
 	
 	public void serverMessage(String text) {
 		irc.serverMessage(text);	
-	}
-	
-	public void closeConnection() {
-		irc.disconnect();
 	}
 	
 	public void addIrcListener(IrcListener listener){
@@ -134,26 +130,23 @@ public class GikkBot{
 	}
 	
 	public void onProgramExit(){
-		closeConnection();
+		irc.dispose();
 		userDatabaseCommunicator.onProgramExit();
+	}
+	
+	public UserDatabaseCommunicator getDB(){
+		return userDatabaseCommunicator;
 	}
 	
 	//***********************************************************************************************
 	//											PRIVATE
 	//***********************************************************************************************
-	private void addCapacity(Capacity capacity){
-		switch (capacity) {
-		case MEMBERS:
-			irc.serverMessage("CAP REQ :twitch.tv/membership");
-			break;
-		case COMMANDS:
-			irc.serverMessage("CAP REQ :twitch.tv/commands");
-			break;			
-		case TAGS:
-			irc.serverMessage("CAP REQ :twitch.tv/tags");
-			break;
-		}
-	}
 
-	
+	private void addCommands() {
+		irc.addIrcListener( new Command_Stats(userDatabaseCommunicator) );
+		irc.addIrcListener( new Command_Time( userDatabaseCommunicator) );
+		irc.addIrcListener( new Command_Trust(userDatabaseCommunicator) );
+		irc.addIrcListener( new Command_Tick() );
+		irc.addIrcListener( new Command_Lines(userDatabaseCommunicator) );
+	}
 }

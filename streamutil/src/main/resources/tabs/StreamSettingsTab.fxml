@@ -77,7 +77,6 @@
                   <Label fx:id="lbl_alltimeViews" text="NOT CONNECTED" GridPane.columnIndex="4" />
                </children>
             </GridPane>
-            <Button layoutX="658.0" layoutY="302.0" mnemonicParsing="false" onAction="#updateUsersOnline" text="Update" />
             <TableView fx:id="Tbl_UsersOnline" layoutX="14.0" layoutY="220.0" prefHeight="200.0" prefWidth="632.0" />
          </children>
       </AnchorPane>

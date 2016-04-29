@@ -7,14 +7,13 @@ import java.util.ResourceBundle;
 import com.gikk.streamutil.GikkBot;
 import com.gikk.streamutil.task.OneTimeTask;
 import com.gikk.streamutil.task.RepeatedTask;
-import com.gikk.streamutil.twitchApi.SimpleChannelFollowerHandler;
 import com.gikk.streamutil.twitchApi.SimpleChannelHandler;
 import com.gikk.streamutil.twitchApi.SimpleChannelSubscriptionHandler;
 import com.gikk.streamutil.twitchApi.SimpleStreamHandler;
 import com.gikk.streamutil.twitchApi.TwitchApi;
 import com.gikk.streamutil.users.ObservableUser;
+import com.gikk.streamutil.users.UserStatus;
 import com.mb3364.twitch.api.models.Channel;
-import com.mb3364.twitch.api.models.ChannelFollow;
 import com.mb3364.twitch.api.models.ChannelSubscription;
 import com.mb3364.twitch.api.models.Stream;
 import com.mb3364.twitch.api.models.User;
@@ -54,7 +53,7 @@ public class StreamSettingsController extends _TabControllerBase{
 	private ObservableList<ObservableUser> usersOnline;
 	private TwitchApi api;
 	
-	private String onlineStreamStatus = "", onlineStreamGame = "", 	onlineFollowerCount = "", onlineSubCount = "",
+	private String onlineStreamStatus = "", onlineStreamGame = "", onlineSubCount = "",
 				   onlineViewCount = "", 	onlineAlltimeViewCount = "";
 	
 	
@@ -71,28 +70,29 @@ public class StreamSettingsController extends _TabControllerBase{
 	public void initialize(URL location, ResourceBundle resources) {
 		this.api = TwitchApi.GET();
 		
-		//Fetch the online list from the UserManager. 
-		//First, add all currently online listed users to our visible list.
-		//Then, add a change listener, so we see when users are added or removed
+		//Fetch the online list
 		usersOnline = GikkBot.GET().getUsersOnlineList();
 
+		//Setup the UsersOnline table
 		Tbl_UsersOnline.getColumns().addAll( getColumns() );
 		Tbl_UsersOnline.setItems(usersOnline);
 		
+		//Poll the API for stream details (viewer count and such)
 		RepeatedTask pollApiService = new PollApiService(api, this);
-		pollApiService.schedule(100, 55 * 1000 );	//Poll the api almost immediately, then once every 55 seconds
+		pollApiService.schedule(100, 60 * 1000 );	//Poll the api almost immediately, then 1 time per minute
 		
-		//Make the button fire on ENTER strokes too
+		//Make sure that the latest follower is kept updated
+		api.addOnNewFollowerListener( (follower, total, isNew) -> setFollowers(follower, total) );
+		lbl_followerCount.setText( Integer.toString( api.getFollowerCount() ) );
+		lbl_latestFollower.setText( api.getLatestFollower() );
+			
+		//Make the apply button fire on ENTER strokes too
 		btn_streamStatusApply.defaultButtonProperty().bind(btn_streamStatusApply.focusedProperty());
 	}
 	
 	//*************************************************************************************************************
 	//									FXML METHODS
 	//*************************************************************************************************************
-	
-	@FXML protected void updateUsersOnline(){	
-		
-	}
 	
 	/**Pushes the current stream settings to Twitch. After the buttons been pushed, there is a delay until the button
 	 * reactivates again, so that the user doesn't spam Twitch with requests.
@@ -104,7 +104,7 @@ public class StreamSettingsController extends _TabControllerBase{
 		OneTimeTask t = new OneTimeTask() {			
 			@Override
 			public void onExecute() {
-				btn_streamStatusApply.setDisable(false);
+				Platform.runLater( () -> btn_streamStatusApply.setDisable(false) );
 			}
 		};
 		t.schedule(5 * 1000);
@@ -123,7 +123,7 @@ public class StreamSettingsController extends _TabControllerBase{
 	/**************************************************************************************************
 	 * 
 	 * These different set-methods are split up since they will receive answers from the API
-	 * at different times, and sometimes only few of them will acutally be invoked. 
+	 * at different times, and sometimes only few of them will actually be invoked. 
 	 * 
 	 **************************************************************************************************/
 	//************************************************************************************************** 
@@ -156,15 +156,12 @@ public class StreamSettingsController extends _TabControllerBase{
 		}
 	}
 	
-	private void setFollowers(String followerCount, String latestFollower){
-		if( !onlineFollowerCount.matches(followerCount) ){
-			Platform.runLater( () -> {
-				lbl_followerCount.setText(followerCount);
-				lbl_latestFollower.setText(latestFollower);
-				
-				onlineFollowerCount = followerCount;
-			});
-		}		
+	private void setFollowers(String latestFollower, int newTotal){
+		String newTotalString = Integer.toString(newTotal);
+		Platform.runLater( () -> {
+			lbl_followerCount.setText(newTotalString);
+			lbl_latestFollower.setText(latestFollower);
+		});	
 	}
 	
 	private void setSubscribers(String subCount, String latestSub){
@@ -186,7 +183,7 @@ public class StreamSettingsController extends _TabControllerBase{
 		TableColumn[] cols = new TableColumn[7];
 		
 		cols[0] = new TableColumn<User, String>("UserName");
-		cols[1] = new TableColumn<User, String>("Status");
+		cols[1] = new TableColumn<User, UserStatus>("Status");
 		cols[2] = new TableColumn<User, Boolean>("Follower");
 		cols[3]	= new TableColumn<User, Boolean>("Sub");
 		cols[4] = new TableColumn<User, Boolean>("Trusted");
@@ -194,7 +191,7 @@ public class StreamSettingsController extends _TabControllerBase{
 		cols[6]	= new TableColumn<User, Integer>("Lines");
 		
 		cols[0].setCellValueFactory( new PropertyValueFactory<User, String>("userName") );
-		cols[1].setCellValueFactory( new PropertyValueFactory<User, String>("status") );
+		cols[1].setCellValueFactory( new PropertyValueFactory<User, UserStatus>("status") );
 		cols[2].setCellValueFactory( new PropertyValueFactory<User, Boolean>("follower") );
 		cols[3].setCellValueFactory( new PropertyValueFactory<User, Boolean>("subscriber") );
 		cols[4].setCellValueFactory( new PropertyValueFactory<User, Boolean>("trusted") );
@@ -231,8 +228,6 @@ public class StreamSettingsController extends _TabControllerBase{
 		 */
 		@Override
 		public void onExecute() {
-			System.out.println("Polling channel");
-			
 			api.getStreamInfo( new SimpleChannelHandler() {
 				
 				@Override
@@ -241,11 +236,6 @@ public class StreamSettingsController extends _TabControllerBase{
 								    channel.getGame(), 
 								    "OFFLINE",
 								    String.valueOf( channel.getViews() ) );
-				
-					if( channel.getFollowers() > 0 )
-						getFollowers();
-					else 
-						ssc.setFollowers("0", "-");
 					
 					if( channel.isPartner() )
 						getSubs();
@@ -262,18 +252,6 @@ public class StreamSettingsController extends _TabControllerBase{
 					ssc.setViewers(viewers);
 				}
 			});			
-		}
-		
-		private void getFollowers(){
-			api.getFollowers(new SimpleChannelFollowerHandler() {				
-				@Override
-				public void onSuccess(int total, List<ChannelFollow> follows) {
-					String count = String.valueOf(total);
-					String latest = total == 0 ? "-" : follows.get(0).getUser().getDisplayName();
-					
-					ssc.setFollowers( count, latest );
-				}
-			} );
 		}
 		
 		private void getSubs(){

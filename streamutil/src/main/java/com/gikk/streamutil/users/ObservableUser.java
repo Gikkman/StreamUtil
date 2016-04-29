@@ -2,10 +2,13 @@ package com.gikk.streamutil.users;
 
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -31,7 +34,7 @@ import javafx.beans.property.StringProperty;
 public class ObservableUser {
 	private Users user;
 	private final SimpleStringProperty userName = new SimpleStringProperty();
-	private final SimpleStringProperty status = new SimpleStringProperty(UserStatus.REGULAR.toString());
+	private final SimpleObjectProperty<UserStatus> status = new SimpleObjectProperty<UserStatus>(UserStatus.REGULAR);
 	private final SimpleIntegerProperty timeOnline = new SimpleIntegerProperty(0);
 	private final SimpleIntegerProperty linesWritten = new SimpleIntegerProperty(0);
 	private final SimpleBooleanProperty trusted = new SimpleBooleanProperty(false);
@@ -42,10 +45,10 @@ public class ObservableUser {
 	// ***********************************************************
 	// CONSTRUCTORS
 	// ***********************************************************
-	public ObservableUser(Users user) {
+	ObservableUser(Users user) {
 		this.user = user;
 		this.userName.set(user.getUsername());
-		this.status.set(user.getStatus());
+		this.status.set( UserStatus.toUserStatus( user.getStatus() ) );
 		this.follower.set(user.getIsFollower());
 		this.subscriber.set(user.getIsSubscriber());
 		this.timeOnline.set(user.getTimeOnline());
@@ -56,40 +59,40 @@ public class ObservableUser {
 	// ***********************************************************
 	// PUBLIC
 	// ***********************************************************
-	public synchronized String getStatus() {
+	public synchronized UserStatus getStatus() {
 		return status.get();
 	}
 
 	public synchronized void setStatus(UserStatus status) {
-		this.user.setStatus( status.toString() );
-		this.status.setValue( status.toString() );
+		this.user.setStatus( status.toString() );	
+		Platform.runLater( () -> this.status.setValue( status ) );
 	}
 	
-	public synchronized Boolean isTrusted() {
+	public synchronized Boolean getTrusted() {
 		return trusted.getValue();
 	}
 	
 	public synchronized void setTrusted(Boolean trusted){
 		this.user.setIsTrusted(trusted);
-		this.trusted.setValue(trusted);
+		Platform.runLater( () -> this.trusted.setValue(trusted) );
 	}
 
-	public synchronized Boolean isFollower() {
+	public synchronized Boolean getFollower() {
 		return follower.getValue();
 	}
 	
 	public synchronized void setFollower(Boolean follower) {
 		this.user.setIsFollower(follower);
-		this.follower.setValue(follower);
+		Platform.runLater( () -> this.follower.setValue(follower) );
 	}
 
-	public synchronized Boolean isSubscriber() {
+	public synchronized Boolean getSubscriber() {
 		return subscriber.getValue();
 	}
 	
 	public synchronized void setSubscriber(Boolean subscriber){
 		this.user.setIsSubscriber(subscriber);
-		this.subscriber.setValue(subscriber);
+		Platform.runLater( () -> this.subscriber.setValue(subscriber) );
 	}
 
 	public synchronized Integer getTimeOnline() {
@@ -108,16 +111,13 @@ public class ObservableUser {
 	}
 
 	public synchronized void addTimeOnline(int min) {
-		int newTime = timeOnline.get() + min;
-
-		this.timeOnline.set(newTime);
-		this.user.setTimeOnline(newTime);
+		int newMin = timeOnline.get() + min;
+		setTimeOnline(newMin);
 	}
 
 	public synchronized void setTimeOnline(Integer newMin) {
-		this.timeOnline.set(newMin);
 		this.user.setTimeOnline(newMin);
-
+		Platform.runLater( () -> this.timeOnline.set(newMin) );
 	}
 
 	public synchronized Integer getLinesWritten() {
@@ -125,49 +125,49 @@ public class ObservableUser {
 	}
 
 	public synchronized void addLinesWritten(Integer amount) {
-		int newLinesWritten = this.linesWritten.get() + amount;
-
-		this.linesWritten.set(newLinesWritten);
-		this.user.setLinesWritten(newLinesWritten);
-
+		int newAmount = this.linesWritten.get() + amount;
+		setLinesWritten(newAmount);
 	}
 
 	public synchronized void setLinesWritten(Integer newAmount) {
-		this.linesWritten.set(newAmount);
 		this.user.setLinesWritten(newAmount);
-
+		Platform.runLater( () -> this.linesWritten.set(newAmount) );
 	}
 
 	public synchronized String getUserName() {
 		return userName.get();
-	}
-	
-	synchronized void updateUnderlyingDatabaseObject(){
-		this.user = this.user.update();
 	}
 
 	@Override
 	public synchronized String toString() {
 		String out = getUserName();
 		
-		if( getStatus().matches( UserStatus.ADMIN.toString() ) )
+		if( getStatus() == UserStatus.ADMIN )
 			out += " (ADMIN)";
-		else if( getStatus().matches( UserStatus.MODERATOR.toString() ))
+		else if( getStatus() == UserStatus.MODERATOR )
 			out += " (MOD)";
 
-		if (isSubscriber())
+		if (getSubscriber())
 			out += " [Subscriber]";
-		else if (isFollower())
+		else if (getFollower())
 			out += " [Follower]";
 		else
 			out += " [Guest]";
 		
-		if( isTrusted() )
+		if( getTrusted() )
 			out += " {Trusted}";
 		
 		out += " Time online: " + getTimeOnlineFormated();
 		out += " Lines written: " + getLinesWritten();
 		return out;
+	}
+	
+	// ***********************************************************
+	// PACKAGE
+	// ***********************************************************
+	
+	synchronized void updateUnderlyingDatabaseObject(){
+		this.user = this.user.update();
 	}
 
 	// ***********************************************************
@@ -177,7 +177,7 @@ public class ObservableUser {
 		return userName;
 	}
 
-	public StringProperty statusProperty() {
+	public ObjectProperty<UserStatus> statusProperty() {
 		return status;
 	}
 
@@ -195,5 +195,9 @@ public class ObservableUser {
 
 	public BooleanProperty subscriberProperty() {
 		return subscriber;
+	}
+	
+	public BooleanProperty trustedProperty() {
+		return trusted;
 	}
 }

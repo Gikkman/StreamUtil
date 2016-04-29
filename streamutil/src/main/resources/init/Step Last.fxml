@@ -33,6 +33,19 @@
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" After having been restarted, the actuall program should launch. I hope this launcher was managable, and that his application will prove useful." />
                </children>
             </TextFlow>
+            <TextFlow prefHeight="0.0" prefWidth="572.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Oh, and remember to " />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="mod your bot " underline="true" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="on your channel. Otherwise, some of it's messages will be eaten by Twitch. You mod your bot by typing " />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text=".mod [bot account name] ">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="in your chat." />
+               </children>
+            </TextFlow>
             <TextFlow textAlignment="RIGHT">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="- Gikkman" wrappingWidth="98.767578125">

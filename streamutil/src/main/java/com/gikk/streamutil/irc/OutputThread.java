@@ -17,7 +17,6 @@ class OutputThread extends Thread{
 	//											VARIABLES
 	//***********************************************************************************************
 	private final TwitchIRC connection;
-	private final BufferedReader reader;
 	private final BufferedWriter writer;
 	private final OutputQueue queue;
 	
@@ -31,7 +30,6 @@ class OutputThread extends Thread{
 	public OutputThread(TwitchIRC connection, OutputQueue queue, BufferedReader reader, BufferedWriter writer){
 		this.connection = connection;
 		this.queue = queue;
-		this.reader = reader;
 		this.writer = writer;
 		
 		this.setName("GikkBot-OutputThread");
@@ -41,18 +39,21 @@ class OutputThread extends Thread{
 	public void run(){
 		String line;
         while( isConnected ){
-        	line = queue.next();
-        	if( line != null ) {
-        		sendLine(line);
-        	}
-        	else {
-        		//If we get a null line from the queue, it might mean that the application interrupted the thread
-        		// and wants us to shut down.
-        		isConnected = connection.isConnected();	
-        	}        	
-        	try { Thread.sleep(MESSAGE_GAP_MILLIS); } 
+        	try {
+        		line = queue.next();
+	        	if( line != null ) {
+	        		sendLine(line);
+	        	}
+	        	else {
+	        		//If we get a null line from the queue, it might mean that the application interrupted the thread
+	        		// and wants us to shut down.
+	        		isConnected = connection.isConnected();	
+	        	}        	
+	        	 Thread.sleep(MESSAGE_GAP_MILLIS); } 
         	catch (InterruptedException e) { 
         		/* Being interrupted probably means that we are about to shut down.
+        		 * If the socket is closed, it also meens that we are about to shut down.
+        		 * 
         		 * If we are about to close down, isConnected will be set to false so we can just go back
         		 * to the loop and automatically terminate from there.  */ 
     		}
@@ -62,22 +63,6 @@ class OutputThread extends Thread{
 	//***********************************************************************************************
 	//											PUBLIC
 	//***********************************************************************************************
-
-	/**Enqueues a message at the end of the message queue.
-	 * 
-	 * @param message
-	 */
-	public void enqueueMessage(String message){
-		queue.add(message);
-	}
-	
-	/**Enqueues a message at the front of the message queue. The message will be sent as soon as possible.
-	 * 
-	 * @param message
-	 */
-	public void enqueueMessageFront(String message){
-		queue.addFirst(message);
-	}
 	
 	/**Circumvents the message queue completely and attempts to send the message at once. Should only be used for sending
 	 * PING responses.

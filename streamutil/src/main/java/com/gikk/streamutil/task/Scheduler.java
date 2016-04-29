@@ -64,7 +64,7 @@ public class Scheduler {
 		return executor.schedule( () -> oneTimeTask.onExecute() , delayMillis, TimeUnit.MILLISECONDS);
 	}
 	//***********************************************************************************************
-	//											PRIVATE
+	//											TERMINATION
 	//***********************************************************************************************
 	public void onProgramExit() {		
 		Thread thread = new Thread( () -> {
@@ -72,14 +72,13 @@ public class Scheduler {
 				System.out.println();
 				System.out.println("\tThere are currently " + executor.getQueue().size()+ " task scheduled.\n"
 								 + "\tThere are currently " + executor.getActiveCount() + " tasks executing.\n"
-						 		 + "\tAttempting shutdown...");
+						 		 + "\tAttempting shutdown. Please allow up to a minute...");
+				
 				executor.shutdown(); 
-				executor.awaitTermination(30, TimeUnit.SECONDS);
-
-				if( executor.getActiveCount() == 0) {
+				if( executor.awaitTermination(60, TimeUnit.SECONDS) ) {
 					return;
 				}
-				
+			
 				System.out.println();
 				System.out.println("\tThere are still " + executor.getActiveCount() + " tasks executing.\n"
 								 + "\tForcing shutdown...");

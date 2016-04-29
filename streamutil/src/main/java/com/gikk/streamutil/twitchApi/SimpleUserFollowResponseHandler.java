@@ -6,7 +6,9 @@ public abstract class SimpleUserFollowResponseHandler implements UserFollowRespo
 	
 	@Override
 	public void onFailure(Throwable arg0) {
-		arg0.printStackTrace();
-		onFailure(-1, "Error thrown", "An error occured when accessing Twitch API");
+	}
+	
+	@Override
+	public void onFailure(int statusCode, String statusMessage, String errorMessage) {
 	}
 }

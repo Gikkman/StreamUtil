@@ -4,12 +4,16 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.gikk.streamutil.GikkBot;
-import com.gikk.streamutil.twitchApi.TwitchApi;
-import com.mb3364.twitch.api.handlers.UserFollowResponseHandler;
-import com.mb3364.twitch.api.models.UserFollow;
+import com.gikk.streamutil.users.ObservableUser;
+import com.gikk.streamutil.users.UserDatabaseCommunicator;
+import com.gikk.streamutil.users.UserStatus;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 
 public class BotDebugTabController extends _TabControllerBase {
@@ -18,6 +22,9 @@ public class BotDebugTabController extends _TabControllerBase {
 	//***********************************************************
 	@FXML protected TextField txt_RawMessage;
 	@FXML protected TextField txt_UserName;
+	@FXML protected RadioButton rad_Sub; @FXML protected RadioButton rad_Fol; @FXML protected RadioButton rad_Trust;
+	@FXML protected Spinner<Integer> spn_time; @FXML protected Spinner<Integer> spn_lines;
+	@FXML protected ComboBox<UserStatus> cbb_state;
 	
 	private GikkBot bot;
 	
@@ -27,6 +34,11 @@ public class BotDebugTabController extends _TabControllerBase {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		bot = GikkBot.GET();
+		cbb_state.getItems().addAll( UserStatus.values() );
+		cbb_state.setValue( cbb_state.getItems().get(0) );
+		
+		spn_lines.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100000) );
+		spn_time.setValueFactory(  new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100000) );
 	}
 	
 	//***********************************************************
@@ -46,26 +58,25 @@ public class BotDebugTabController extends _TabControllerBase {
 		bot.serverMessage( txt_RawMessage.getText() );
 	}
 	
-	@FXML protected void testFollower(ActionEvent e){
-		TwitchApi.GET().checkIfFollower(txt_UserName.getText(), "#gikkman", new UserFollowResponseHandler() {
-			
-			@Override
-			public void onFailure(int arg0, String arg1, String arg2) {
-				System.out.println("Fail: " + arg0 + " " + arg1 + " " + arg2);		
-				
-			}
-			
-			@Override
-			public void onFailure(Throwable arg0) {
-				System.out.println("Fail: Throw");		
-				
-			}
-			
-			@Override
-			public void onSuccess(UserFollow arg0) {
-				
-				System.out.println("Success: " + arg0.getChannel().getDisplayName() + " is follower");				
-			}
-		});
+	@FXML protected void addUser(ActionEvent e){
+		if( txt_UserName.getText().isEmpty() ){
+			System.err.println("A name is required");
+			return;
+		}
+		
+		UserDatabaseCommunicator db = GikkBot.GET().getDB();
+		ObservableUser user = db.getOrCreate( txt_UserName.getText() );
+		
+		if( user == null ){
+			System.err.println("The name was not unique");
+			return;
+		}
+		
+		user.setFollower( rad_Fol.isSelected() );
+		user.setTrusted( rad_Trust.isSelected() );
+		user.setSubscriber( rad_Sub.isSelected() );
+		user.setLinesWritten( spn_lines.getValue());
+		user.setTimeOnline( spn_time.getValue() );
+		user.setStatus( cbb_state.getValue() );
 	}
 }

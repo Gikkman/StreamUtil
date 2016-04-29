@@ -19,7 +19,7 @@ public class IrcMessage {
 		String[] parts = line.split(" ", 4);
 		
 		if( parts.length == 4) {
-			content = parts[3];
+			content = parts[3].charAt(0) == ':' ? parts[3].substring(1) : parts[3];
 			contenctLenght = parts[3].length();
 		} else {
 			content = "";
@@ -81,6 +81,10 @@ public class IrcMessage {
 
 	public String getContent() {
 		return content;
+	}
+	
+	public String toString(){
+		return line;
 	}
 	
 	//***********************************************************

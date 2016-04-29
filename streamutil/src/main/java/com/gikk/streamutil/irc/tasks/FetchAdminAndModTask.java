@@ -15,45 +15,48 @@ import com.gikk.streamutil.users.UserStatus;
  * @author Simon
  *
  */
-public class FetchAdminAndModsTask extends OneTimeTask {
+public class FetchAdminAndModTask extends OneTimeTask {
 	private final UserDatabaseCommunicator userDatabaseCommunicator;
 	private final GikkBot gikkBot;
 
-	private final IrcListener tempListener;
+	private final IrcListener thisListener;
 	
 	public static void CREATE_AND_SCHEDULE(GikkBot gB, UserDatabaseCommunicator uDBc){
-		FetchAdminAndModsTask task = new FetchAdminAndModsTask(gB, uDBc);
-		task.schedule(5 * 1000);
+		FetchAdminAndModTask task = new FetchAdminAndModTask(gB, uDBc);
+		task.schedule(5 * 1000); //The bot needs to establish a connection before executing this command, so we give it plenty of time
 	}
 	
-	private FetchAdminAndModsTask(GikkBot gB, UserDatabaseCommunicator uDBc) {
+	private FetchAdminAndModTask(GikkBot gB, UserDatabaseCommunicator uDBc) {
 		this.gikkBot = gB;
 		this.userDatabaseCommunicator = uDBc;
 		
-    	tempListener = new IrcListener() {
+    	thisListener = new IrcListener() {
     		@Override
     		public void onNotice(IrcMessage message) {
-    			if( message.getContent().startsWith(":The moderators of this room are: ")) {
+    			if( message.getContent().startsWith("The moderators of this room are: ")) {
     				//The channel name is equal to the broadcasters Twitch name, so we add that name as admin
 	    			String target = message.getTarget();
 	    			String admin = target.substring( target.indexOf("#") + 1);	
-	    			userDatabaseCommunicator.updateStatus(UserStatus.ADMIN, admin);
-    				
+	    			userDatabaseCommunicator.getOrCreate(admin).setStatus(UserStatus.ADMIN);
+	    			
 	    			//Then we fetch the name of all the moderators of the channel and update those as well
-    				String modsText = message.getContent().substring( ":The moderators of this room are: ".length() );
+    				String modsText = message.getContent().substring( "The moderators of this room are: ".length() );
 	    			String[] mods = modsText.split(", ");	    			
-	    			userDatabaseCommunicator.updateStatus(UserStatus.MODERATOR, mods);
+	    			for( String mod : mods )
+	    				if( !mod.matches(admin) ) //Don't wanna demote our admin
+	    					userDatabaseCommunicator.getOrCreate(mod).setStatus(UserStatus.MODERATOR);
+	    			
     			}
     		}
 		};	
 		
-		gikkBot.addIrcListener(tempListener);
+		gikkBot.addIrcListener(thisListener);
 		
 	}
 	
 	@Override
 	public void onExecute() {
-		gikkBot.serverMessage("PRIVMSG " + gikkBot.getChannel() + " :.mods");
+		gikkBot.channelMessage(".mods");
 	}
 	
 }

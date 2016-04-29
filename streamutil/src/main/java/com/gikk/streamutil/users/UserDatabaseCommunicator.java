@@ -2,24 +2,22 @@ package com.gikk.streamutil.users;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Random;
+import java.util.stream.Stream;
 
 import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
+import com.speedment.field.predicate.ComparableSpeedmentPredicate;
 import com.speedment.internal.util.MetadataUtil;
 import com.speedment.manager.Manager;
 
-import javafx.application.Platform;
-
 /**This class handles all communication with the underlying database (I'm not sure if this is the correct pattern
  * for using Speedment, but due to old habbits I prefere to wrap access to the DB). <br>
- * It also keeps tracks of all users that are currently online in the Twitch channel, by listening for JOIN/PART
- * messages from the IrcConnection.
  * 
  * 
  * @author Simon
@@ -31,77 +29,11 @@ public class UserDatabaseCommunicator {
 	// ***********************************************************	
 	private final HashMap<String, ObservableUser> userCache = new HashMap<>(); 
 	private final Manager<Users> userDatabase;
+	private final Random rng = new Random();
 	
 	// ***********************************************************
-	// 				CONSTRUCTOR
+	// 				STATIC
 	// ***********************************************************	
-	public UserDatabaseCommunicator(){
-		Speedment speedment = new GikkStreamUtilApplication().build();
-        userDatabase = speedment.managerOf(Users.class);  
-	}
-	
-	// ***********************************************************
-	// 				PUBLIC
-	// ***********************************************************		
-	/**Fetch a list of users and sets their status
-	 * 
-	 * @param users Users whose status should be changed
-	 * @param status The new status they should have
-	 */
-	public synchronized void updateStatus(UserStatus status, String ...users) {
-		if( users.length <= 0)
-			return;
-		
-		for(String user : users)
-			retreiveUser(user).setStatus(status);	
-	}
-	
-	public synchronized void incrementWrittenRows(String userName, int amount){
-		ObservableUser user = retreiveUser(userName);
-		Platform.runLater(() -> {
-			user.addLinesWritten(amount);
-		} );
-	}
-
-	/**Fetch the status of the user.
-	 * 
-	 * @param userName
-	 * @return This users {@link UserStatus}, or <code>null</code> if the user is not known
-	 */
-	public synchronized UserStatus checkUserStatus(String userName){		
-		if( isUserKnown(userName) )
-			return UserStatus.toUserStatus( retreiveUser(userName).getStatus() );
-		
-		return null;
-	}
-	
-	/**Fetches all information about a certain user
-	 * 
-	 * @param userName The user we're looking for
-	 * @return A string with all info about the user.
-	 */
-	public synchronized String getUserStatistics(String userName) {
-		String out = "User " + userName + " unknown. Please check your spelling";
-		
-		if( isUserKnown(userName) )
-			out = retreiveUser(userName).toString();
-		
-		return out;
-	}
-
-	public synchronized void resetDatabase() {
-		userCache.clear();
-		clearUserDatabase();
-	}
-	
-	public synchronized void flushToDatabase(){
-		flushUsers();
-	}
-	
-	public synchronized void onProgramExit(){
-		flushToDatabase();
-	}
-	
 	/**Tests that our current MySQL database is compatible with the Speedment
 	 * code we have.
 	 * 
@@ -141,69 +73,146 @@ public class UserDatabaseCommunicator {
 		
 		return init&&load&&strt;
 	}
-
-	// ***********************************************************
-	// 				PACKAGE
-	// ***********************************************************	
 	
-	/**Either fetches the ObservebleUser for this user name from the cache, or creates
-	 * a new User in the underlying database and returns a ObservableUser wrapping the 
-	 * new User
+	// ***********************************************************
+	// 				CONSTRUCTOR
+	// ***********************************************************	
+	public UserDatabaseCommunicator(){
+		Speedment speedment = new GikkStreamUtilApplication().build();
+        userDatabase = speedment.managerOf(Users.class);  
+	}
+	
+	// ***********************************************************
+	// 				PUBLIC
+	// ***********************************************************		
+	
+	/**Tries to fetch the user {@code userName} from the database. If no such user exists, a new entry will be 
+	 * created.
 	 * 
-	 * @param userName
-	 * @return
+	 * @param userName Nick of the user
+	 * @return {@code ObservableUser} representing user {@code userName}. This might return {@code null} if a user could
+	 * not be created
 	 */
-	synchronized ObservableUser retreiveUser (String userName){
-		String name = userName.toLowerCase();
+	public synchronized ObservableUser getOrCreate(String userName){
+		return retreiveUser(userName);
+	}
+	
+	/**Tries to fetch the user {@code userName} from the database. If no such user exists, this method returns {@code null}.
+	 * If you want to create a user is no such user exists, try the {@link #getOrCreate(String) getOrCreate} method.
+	 * 
+	 * @param userName Nick of the user
+	 * @return {@code ObservableUser} representing user {@code userName}, or {@code null} if no such user exists in the database
+	 */
+	public synchronized ObservableUser getUser(String userName){
+		if( isUserKnown(userName) )
+			return retreiveUser(userName);
+		return null;
+	}
+	
+	/**Retrieves a list of the X users with the highest time online. 
+	 * 
+	 * @param amount How many users you want. If {@code amount} is less than 1, this method might throw an error
+	 * @return List of {@code ObservableUser} with up to {@code amount} elements in it.
+	 */
+	public synchronized List<ObservableUser> getTopTimeUsers(int amount){	
+		flushToDatabase();	//We have to flush cashed data before we can stream over the database
 		
-		ObservableUser oUser = userCache.get(name);
-		if( oUser == null ){
-			oUser = fetchUserFromDatabase(name);
-			if( oUser == null ){
-				oUser = createNewUserInDatabase(name);			
-			}
-			userCache.put(name, oUser);	
+		List<ObservableUser> users = new LinkedList<>();
+		userDatabase.stream()
+					.sorted( Users.TIME_ONLINE.comparator().reversed() )
+					.limit(amount)
+					.forEach( p ->  {
+						users.add( retreiveUser( p.getUsername() ) );
+					} );
+		return users;
+	}
+	
+	public synchronized List<ObservableUser> getTopLineUsers(int amount){	
+		flushToDatabase();	//We have to flush cashed data before we can stream over the database
+		
+		List<ObservableUser> users = new LinkedList<>();
+		userDatabase.stream()
+					.sorted( Users.LINES_WRITTEN.comparator().reversed() )
+					.limit(amount)
+					.forEach( p ->  {
+						users.add( retreiveUser( p.getUsername() ) );
+					} );
+		return users;
+	}
+	
+	/**Fetches a random user whom's  matches the given value.<br><br>
+	 * 
+	 * <b>Example:</b> {@code getRandomUserWhere( Users.TIME_ONLINE.eqals(0)}<br>
+	 * Will fetch a random user whom's TIME_ONLINE field equals to 0
+	 *  
+	 * @param comparator The comparator to use
+	 * @return A random user that matches the comparator, or {@code null} if there is none
+	 */
+	public synchronized ObservableUser getRandomUserWhere( ComparableSpeedmentPredicate<Users, Integer, Integer> comparator) {
+		flushToDatabase(); //We have to flush cashed data before we can stream over the database
+
+		/* We want to fetch a random user matching the comparator. However, my knowledge of streams are
+		 * limited, so I use this work around to get both the .count() method and .findAny()
+		 */
+		Stream<Users> stream = userDatabase.stream().unordered().parallel().filter( comparator );
+		Optional<Users> opt = stream.skip( rng.nextInt( (int) stream.count() ) ).findAny();
+		
+		//If we didn't find anyone matching the comparator, return null
+		if( !opt.isPresent() ){
+			return null;
 		}
-		return oUser;
+		else{
+			return retreiveUser( opt.get().getUsername() );
+		}
+	}
+	
+	public synchronized void onProgramExit(){
+		flushToDatabase();
 	}
 	
 	//*********************************************************************************
 	//			DATABASE ACCESSORS
 	//*********************************************************************************
-	private synchronized void flushUsers(){
-		userCache.values().stream().forEach( 
-				p -> p.updateUnderlyingDatabaseObject()
-		);
-	}
 	
-	private synchronized boolean isUserKnown(String userName) {
+	/**Fetches a User from the database, and wraps it in an ObservableUser. If no such user exists,
+	 * this method will create a new entry in the database, and return an ObservableUser wrapping the
+	 * newly created user.
+	 * 
+	 * @param userName Name of the user
+	 * @return An {@code ObservableUser} wrapping the database entry for {@code userName}
+	 */
+	private ObservableUser retreiveUser (String userName){
 		String name = userName.toLowerCase();
 		
-		return userDatabase.stream().parallel()
-					.filter( Users.USERNAME.equal(name) )
-					.count() > 0;
+		/* 
+		 * Check if the user is cached.
+		 * If not, check if we can fetch it from the database (and cache it)
+		 * If not, create a new user (and cache it).
+		 * If we cannot, return null
+		 */
+		ObservableUser oUser = userCache.get(name);
+		if( oUser == null ){
+			oUser = fetchUserFromDatabase(name);
+			if( oUser == null ){
+				oUser = createNewUserInDatabase(name);	
+				if( oUser == null ) //Error when trying to create the new user
+					return null;
+			} 
+			userCache.put(name, oUser);	
+		}
+		return oUser;
 	}
 	
-	/**Removes all Users from the UserDatabase
-	 * 
-	 */
-	private synchronized void clearUserDatabase() {
-		Set<Users> users = userDatabase.stream().parallel().collect( Collectors.toSet() );
-		for( Users u : users )
-			userDatabase.remove(u);
-	}
-	
-	/**Fetches all users of a certain UserStatus from the underlying database
-	 * 
-	 * @param status
-	 * @return List of all users with the given UserStatus. The list might be empty
-	 */
-	@SuppressWarnings("unused")
-	private synchronized List<Users> fetchUsersOfStatus(UserStatus status){
-		String statusName = status.toString();
-		return userDatabase.stream()
-							.filter( Users.STATUS.equal(statusName) )
-							.collect( Collectors.toList() );
+	private boolean isUserKnown(String userName) {
+		String name = userName.toLowerCase();
+		
+		//No need to flush data here, since we only care about their
+		//user name, and that is persisted on creation
+		boolean count = userDatabase.stream()
+				.filter( Users.USERNAME.equal(name) )
+				.count() > 0;
+				
+		return count;
 	}
 	
 	/**Creates a new User in the underlying UserDatabase, and creates a ObservableUser wrapping the user.
@@ -211,7 +220,7 @@ public class UserDatabaseCommunicator {
 	 * @param userName The user name of the new User. All other fields are default initiated.
 	 * @return An ObservableUser, wrapping the underlying User
 	 */
-	private synchronized ObservableUser createNewUserInDatabase(String userName){
+	private ObservableUser createNewUserInDatabase(String userName){
 		String name = userName.toLowerCase();
 		Users user = null;
 		try {
@@ -247,7 +256,7 @@ public class UserDatabaseCommunicator {
 	 * @param userName The user name you want to look up
 	 * @return A ObservableUser-object, representing that user, on NULL, if the user doesn't exist
 	 */
-	private synchronized ObservableUser fetchUserFromDatabase(String userName){
+	private ObservableUser fetchUserFromDatabase(String userName){
 		String name = userName.toLowerCase();
 		Optional<Users> opt = userDatabase.stream().parallel()
 						.filter( Users.USERNAME.equal(name) )
@@ -257,5 +266,14 @@ public class UserDatabaseCommunicator {
 			return new ObservableUser( opt.get() );
 		else
 			return null;
+	}
+	
+	/**
+	 * Flushes all user data to the underlying database
+	 */
+	private void flushToDatabase(){
+		userCache.values().stream().forEach( 
+				p -> p.updateUnderlyingDatabaseObject()
+		);
 	}
 }

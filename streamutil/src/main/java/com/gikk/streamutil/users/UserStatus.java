@@ -20,7 +20,7 @@ public enum UserStatus {
 	public static UserStatus toUserStatus(String status){
 		String val = status.toLowerCase();
 		for( UserStatus e : UserStatus.values() )
-			if( val == e.name ) return e;
+			if( val.matches(e.name) ) return e;
 		return null;
 	}
 }

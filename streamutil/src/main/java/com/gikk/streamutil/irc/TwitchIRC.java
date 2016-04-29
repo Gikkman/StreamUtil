@@ -34,8 +34,8 @@ public class TwitchIRC {
 	private final String channel;
 	private final int port;
 	
-	private final OutputThread outThread;
-	private final InputThread inThread;
+	private OutputThread outThread;
+	private InputThread inThread;
 	private final OutputQueue queue;
 	
 	private final ArrayList<IrcListener> listeners = new ArrayList<>();
@@ -69,26 +69,7 @@ public class TwitchIRC {
         channel = prop.getString("channel");
         port 	= prop.getInt("port"); 
         
-        try{
-        	socket = new Socket(server, port);
-        	socket.setSoTimeout(120 * 1000); //Set a timeout for connection to 120 seconds
-        } catch (Exception e){
-        	e.printStackTrace();
-        }
-		try {
-			writer = new BufferedWriter( new OutputStreamWriter(socket.getOutputStream()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		try {
-			reader = new BufferedReader( new InputStreamReader(socket.getInputStream()));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
 		this.queue 	   = new OutputQueue();
-		this.outThread = new OutputThread(this, queue, reader, writer);
-		this.inThread  = new InputThread(this, reader, writer);	
     }
     
 	//***********************************************************************************************
@@ -102,12 +83,20 @@ public class TwitchIRC {
 		outThread.quickSend(message);
 	}
 	
-	public void channelMessage(String message) {
-		outThread.enqueueMessage("PRIVMSG " + getChannel() + " :" + message);
+	/**Enqueues a message at the end of the message queue.
+	 * 
+	 * @param message
+	 */
+	public void channelMessage(String message){
+		queue.add("PRIVMSG " + getChannel() + " :" + message);
 	}
 	
-	public void priorityChannelMessage(String message) {
-		outThread.enqueueMessageFront("PRIVMSG " + getChannel() + " :" + message);		
+	/**Enqueues a message at the front of the message queue. The message will be sent as soon as possible.
+	 * 
+	 * @param message
+	 */
+	public void priorityChannelMessage(String message){
+		queue.addFirst("PRIVMSG " + getChannel() + " :" + message);
 	}
 	
 	public boolean isConnected() {
@@ -130,9 +119,12 @@ public class TwitchIRC {
 		return serverName;
 	}
 	
+	/**Adds a specific listener to the list of active listeners
+	 * 
+	 * @param listener Listener to be added
+	 */
 	public void addIrcListener(IrcListener listener){
 		synchronized (listeners) {			
-			System.out.println("\tAdded listener");
 			this.listeners.add(listener);
 		}
 	}
@@ -144,7 +136,6 @@ public class TwitchIRC {
 	 */
 	public boolean removeIrcListener(IrcListener listener){
 		synchronized (listeners) {	
-			System.out.println("\tRemoved listener");
 			return this.listeners.remove(listener);
 		}
 	}
@@ -158,7 +149,9 @@ public class TwitchIRC {
     	if( isConnected ){
 	    	System.err.println("\tAlready connected to a server!");
 	    	return false;
-    	}    		
+    	}    	
+    	
+		createResources();
     	
     	isConnected = doConnect();
     	if( isConnected ){
@@ -167,7 +160,6 @@ public class TwitchIRC {
     	if( isJoined ){
     		inThread.start();
     		outThread.start();   	
-    		channelMessage("Hello! " + getNick() + " at your service!"); 
     		
     		return true;
     	}  	
@@ -177,8 +169,10 @@ public class TwitchIRC {
 	/**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
      * frees all resources. <br><br>
      * 
-     * It is safe to call this method even if connections are already closed
+     * It is safe to call this method even if connections are already closed.<br><br>
      * 
+     * This method is different from {@code dispose()} in that it calls the {@code onDisconnect()} method
+     * of all the listeners. A listener may thus attempt to reconnect 
      */
 	public void disconnect() {
 		//Since several sources can call this method on program shutdown, we avoid entering it again if 
@@ -186,10 +180,61 @@ public class TwitchIRC {
 		if( !isConnected )
 			return;
 		
-		System.out.println("\n\tDisconnecting from IRC...");
-		
 		isConnected = false;
 		isJoined    = false;
+		
+		System.out.println("\n\tDisconnecting from IRC...");
+		releaseResources();		
+		System.out.println("\tDisconnected from IRC\n");
+		
+		for( IrcListener l : listeners )
+			l.onDisconnect();	
+	}
+	
+	/**Closes the connection to the IrcServer, leaves all channels, terminates the input- and output thread and 
+     * frees all resources. <br><br>
+     * 
+     * It is safe to call this method even if connections are already closed.<br><br>
+     * 
+     * This method is different from {@code dispose()} in that it <b>does not</b> call the {@code onDisconnect()} method
+     * of any of the listeners.
+     */
+	public void dispose(){
+		isConnected = false;
+		isJoined    = false;
+		
+		System.out.println("\n\tDisposing of IRC...");
+		releaseResources();		
+		System.out.println("\tDisposing of IRC completed\n");
+	}
+
+
+	//***********************************************************************************************
+	//										PRIVATE and PACKAGE
+	//***********************************************************************************************	
+	private void createResources(){
+        try{
+        	socket = new Socket(server, port);
+        	socket.setSoTimeout(120 * 1000); //Set a timeout for connection to 120 seconds
+        } catch (Exception e){
+        	e.printStackTrace();
+        }
+		try {
+			writer = new BufferedWriter( new OutputStreamWriter(socket.getOutputStream()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			reader = new BufferedReader( new InputStreamReader(socket.getInputStream()));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		this.outThread = new OutputThread(this, queue, reader, writer);
+		this.inThread  = new InputThread(this, reader, writer);
+	}
+	
+	private void releaseResources(){
 		
 		outThread.end();
 		if( outThread.isAlive() )
@@ -198,22 +243,18 @@ public class TwitchIRC {
 		inThread.end();
 		if( inThread.isAlive())
 			inThread.interrupt();
-
+		
 		try { socket.close(); } 
-		catch (IOException e) { e.printStackTrace(); }
+		catch (IOException e) {  }
 		
 		try { reader.close(); } 
-		catch (IOException e) { e.printStackTrace(); }
+		catch (IOException e) {  }
 		
 		try { writer.close(); } 
-		catch (IOException e) { e.printStackTrace(); }
-		
-		System.out.println("\tAll IRC resources has been disposed of\n");
+		catch (IOException e) {  }
 	}
 	
-	//***********************************************************************************************
-	//										PRIVATE and PACKAGE
-	//***********************************************************************************************	
+	
 	private boolean doConnect() throws IOException{
 		// Log on to the server.
 		writer.write("PASS " + pass + "\r\n");
@@ -264,7 +305,6 @@ public class TwitchIRC {
     		// Hence, we reply "PONG MESSAGE" . That's where the substring(5) comes from bellow, we strip
     		//out everything but the message
     		serverMessage("PONG " + message.getCommand() );
-    		channelMessage("We got pinged!");
     		
     		wasPing = true;
 		}
@@ -288,6 +328,12 @@ public class TwitchIRC {
 			if( message.getCommand().matches("NOTICE") ){
 				for(IrcListener l : listeners )
 					l.onNotice(message);
+				return;
+			}
+			
+			if( message.getCommand().matches("MODE") ){
+				for(IrcListener l : listeners )
+					l.onMode(message);
 				return;
 			}
 			
