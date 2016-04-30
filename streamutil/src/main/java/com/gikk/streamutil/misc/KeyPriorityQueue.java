@@ -11,7 +11,7 @@ import java.util.PriorityQueue;
  * 
  * @author Simon
  *
- * @param <E>
+ * @param <E> Type the queue contains
  */
 public abstract class KeyPriorityQueue<E> implements Iterable<E> {
 	//*********************************************************************************************
@@ -74,7 +74,7 @@ public abstract class KeyPriorityQueue<E> implements Iterable<E> {
 	 * 
 	 * <br><br>Complexity: O(n) where n is the number of elements in the queue
 	 * 
-	 * @param element The element we search for
+	 * @param key The key we are removing element for
 	 * @return True if element is found (and removed), False otherwise
 	 */
 	public boolean remove(double key){
@@ -91,11 +91,11 @@ public abstract class KeyPriorityQueue<E> implements Iterable<E> {
 		
 	}
 	
-	/**Returns an ArrayList<E> of all elements in the queue. There is no guarantee that it is sorted. 
+	/**Returns an ArrayList of all elements in the queue. There is no guarantee that it is sorted. 
 	 * This list does not affect the underlying structure, but changes to the elements persist
 	 * <br><br>Complexity: O(n) where n is the number of elements in the queue
 	 * 
-	 * @return
+	 * @return An ArrayList of all values in the queue. Order is not quaranteed.
 	 */
 	public ArrayList<E> values(){
 		ArrayList<E> out = new ArrayList<E>(queue.size());
@@ -106,7 +106,7 @@ public abstract class KeyPriorityQueue<E> implements Iterable<E> {
 	
 	/**Returns a double[] of all the keys in the queue. There is no guarantee that it is sorted
 	 * <br><br>Complexity: O(n) where n is the number of elements in the queue
-	 * @return
+	 * @return Array of all keys in the queue
 	 */
 	public double[] getKeys(){
 		double[] keys = new double[ queue.size() ];

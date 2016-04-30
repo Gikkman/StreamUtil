@@ -18,7 +18,7 @@ public final class CommandHelperMethods {
 	 * <b>Example:</b> '!stats Simon 2000' <br>
 	 * Would return: 'Simon'
 	 * 
-	 * @param content The string from which you want to retreive the argument
+	 * @param message The IrcMessage from which you want to retrieve the argument
 	 * @return The second word, or {@code null} if there is no second word
 	 */
 	public static String getCommandArgument(IrcMessage message){
@@ -40,7 +40,7 @@ public final class CommandHelperMethods {
 	 * Would return: {@code sender.getNick()}'<br><br>
 	 * 
 	 * @param sender The user who sent this IRC message
-	 * @param content The string from which you want to retreive the argument
+	 * @param message The IrcMessage from which you want to retrieve the argument
 	 * @return The second word, or {@code null} if there is no second word
 	 */
 	public static String getCommandArgumentOrSender(IrcUser sender, IrcMessage message){

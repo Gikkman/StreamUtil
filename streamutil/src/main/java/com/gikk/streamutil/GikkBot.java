@@ -124,7 +124,7 @@ public class GikkBot{
 	}
 	
 	/**This method is only here for testing purposes, so we can modify the database via the GUI.
-	 * TODO: Remove
+	 * TODO: Remove this at later time
 	 * 
 	 * @return The UserDatabaseCommunicator
 	 */

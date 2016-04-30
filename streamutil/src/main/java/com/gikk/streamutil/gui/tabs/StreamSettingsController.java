@@ -95,6 +95,8 @@ public class StreamSettingsController extends _TabControllerBase{
 	
 	/**Pushes the current stream settings to Twitch. After the buttons been pushed, there is a delay until the button
 	 * reactivates again, so that the user doesn't spam Twitch with requests.
+	 * 
+	 * @param e Ignored
 	 */
 	@FXML protected void applyStreamStatus(ActionEvent e){
 		btn_streamStatusApply.setDisable(true);

@@ -77,7 +77,7 @@ public class TwitchIRC {
 	//***********************************************************************************************
 	/**Sends a message directly to the server. This method should be used very sparsely.
 	 * 
-	 * @param message
+	 * @param message The message that should be sent
 	 */
     public void serverMessage(String message) {
 		outThread.quickSend(message);
@@ -85,7 +85,7 @@ public class TwitchIRC {
 	
 	/**Enqueues a message at the end of the message queue.
 	 * 
-	 * @param message
+	 * @param message The message that should be sent
 	 */
 	public void channelMessage(String message){
 		queue.add("PRIVMSG " + getChannel() + " :" + message);
@@ -93,7 +93,7 @@ public class TwitchIRC {
 	
 	/**Enqueues a message at the front of the message queue. The message will be sent as soon as possible.
 	 * 
-	 * @param message
+	 * @param message The message that should be sent
 	 */
 	public void priorityChannelMessage(String message){
 		queue.addFirst("PRIVMSG " + getChannel() + " :" + message);
@@ -142,8 +142,8 @@ public class TwitchIRC {
         
     /**Connects to the Twitch server and joins the appropriate channel.
      * 
+     * @return {@code true} if connection was successful
      * @throws IOException In case the BufferedReader or BufferedWriter throws an error during connection. Might be due to timeout, socket closing or something else
-     * 
      */
     public boolean connect() throws IOException{
     	if( isConnected ){

@@ -13,6 +13,7 @@ public class StackTrace {
 	 * <br><br><b>Example</b>
 	 * <br><code>System.err.println("Error. Unknown args. " + StackTrace.getStackPos() );</code>
 	 * 
+	 * @return A string which contains stack trace links
 	 */
 	public static String getStackPos(){
 		String out = "   ";

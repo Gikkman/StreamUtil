@@ -25,8 +25,7 @@ public abstract class Command_Base implements IrcListener{
 	/**Base class for simpler chat commands. Simple chat commands perform a certain
 	 * action whenever a certain pattern of characters are seen. 
 	 * 
-	 * @param leadingCommand {@code True} means that the pattern must be in the beginning of the chat line. 
-	 * {@code False} means that the command can be found anywhere in the message
+	 * @param type What type of command is this. PREFIX_COMMAND or CONTENT_COMMAND
 	 */
 	protected Command_Base(CommandType type){
 		commandPattern = compile();

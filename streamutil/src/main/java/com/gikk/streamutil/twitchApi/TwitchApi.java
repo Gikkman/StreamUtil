@@ -150,8 +150,7 @@ public class TwitchApi {
 	
 	/**Checks if {@code userName} is following {@code channel}. The channel <b>should not</b> have a #
 	 * 
-	 * @param userName The user whoms status we want to check
-	 * @param channel The channel for which we are checking
+	 * @param userName The user who's status we want to check
 	 * @param handler The result handler. It will call {@code onSuccess()} if the user is a follower and if the <i>CHANNEL DOES NOT EXIST</i>.
 	 * In case the channel does not exist, the follow object in the {@code onSuccess()} method will be null.
 	 */
