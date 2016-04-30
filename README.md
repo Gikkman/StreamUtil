@@ -77,7 +77,7 @@ The first time the program is launched the initializer will fire up. The initial
 2. Step 2
   1. Download and instal MySQL community server. Install as much as possible (I am unsure what is vital and what is not).
   2. Execite the following SQL command:
-```
+  ```
   CREATE DATABASE if not exists gikk_stream_util;
   USE gikk_stream_util;
 
@@ -99,7 +99,7 @@ The first time the program is launched the initializer will fire up. The initial
   CREATE USER if not exists 'gikkbot_user'@'localhost';
   GRANT ALL on gikk_stream_util.* TO 'gikkbot_user'@'localhost';
   FLUSH PRIVILEGES;
-```
+  ```
 3. Step 3
   1. Create a new account for your bot. This is your *bot account*
   2. Log into your new bot account
