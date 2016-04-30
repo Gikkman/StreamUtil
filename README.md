@@ -44,29 +44,6 @@ CONTENT COMMANDS
 1. Download the project and import it as a Maven project.
 2. Run the project and follow the initialization instructions.
 3. After the initialization, re-launch the program.
-
-**OR**
-
-1. Create a new Maven project
-2. Add the following to your pom.xml
-  ```
-	<repositories>
-		<repository>
-		    <id>jitpack.io</id>
-		    <url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-	
-	<dependency>
-	    <groupId>com.github.gikkman</groupId>
-	    <artifactId>StreamUtil</artifactId>
-	    <version>0.0.2</version>
-	</dependency>
-	```
-3. Run the following code:
-  ```
-  com.gikk.streamutil.Main.main(new String[0]);
-  ```
   
 ##Instructions (Initialization)
 The first time the program is launched the initializer will fire up. The initialization should be quite self-explanatory. But just in case, here are the in-depth instructions for how to initialize the program:
@@ -129,6 +106,7 @@ Twitch's API and IRC is difficult to work with. There is a lot of undocumented d
 4. .mod messages are very slow
 5. .mod status is not revoked if a user is unmodded whilst the bot is disconnected. To revoke mod status, re-mod and then unmod the user while the bot is connected.
 6. The IRC socket resets sometimes. Might be my connection where I debug, but I know it happens sometimes.
+7. The way I load resources means that I cannot deploy the project. However, I realized that far to late and thus don't have the time to fix it. Therefor, this project can only be run from an IDE
 
 ## Contant
 If there are any issued, or any questions, you can reach me via twitter @Gikkman
