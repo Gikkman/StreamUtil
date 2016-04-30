@@ -40,17 +40,13 @@ PREFIX COMMANDS
 CONTENT COMMANDS
 - tick  : If the pattner 'tick' is seen in a chat message, the bot responds with 'tock'
 ```
-## Instructions (basic):
+## Instructions (Setup):
 1. Download the project and import it as a Maven project.
 2. Run the project and follow the initialization instructions.
 3. After the initialization, re-launch the program.
   
-###### Instructions (in deapth)
-Download the project
-
-Import the project as a Maven project
-
-Launch the project. This will bring up a window with 4 steps. These are initialization steps.
+##Instructions (Initialization)
+The first time the program is launched the initializer will fire up. The initialization should be quite self-explanatory. But just in case, here are the in-depth instructions for how to initialize the program:
 
 1. Step 1
   1. Make sure you have a Twitch.tv account from which you stream. If not, make one. This is you *streaming account*
@@ -80,7 +76,7 @@ Launch the project. This will bring up a window with 4 steps. These are initiali
   CREATE USER if not exists 'gikkbot_user'@'localhost';
   GRANT ALL on gikk_stream_util.* TO 'gikkbot_user'@'localhost';
   FLUSH PRIVILEGES;
- ```
+  ```
 3. Step 3
   1. Create a new account for your bot. This is your *bot account*
   2. Log into your new bot account
@@ -110,6 +106,7 @@ Twitch's API and IRC is difficult to work with. There is a lot of undocumented d
 4. .mod messages are very slow
 5. .mod status is not revoked if a user is unmodded whilst the bot is disconnected. To revoke mod status, re-mod and then unmod the user while the bot is connected.
 6. The IRC socket resets sometimes. Might be my connection where I debug, but I know it happens sometimes.
+7. The way I load resources means that I cannot deploy the project. However, I realized that far to late and thus don't have the time to fix it. Therefor, this project can only be run from an IDE
 
 ## Contant
 If there are any issued, or any questions, you can reach me via twitter @Gikkman
