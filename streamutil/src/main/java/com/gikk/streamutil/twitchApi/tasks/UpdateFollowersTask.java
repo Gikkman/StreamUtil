@@ -31,7 +31,7 @@ public class UpdateFollowersTask extends RepeatedTask{
 	private int previousTotal = -1;
 	private final AtomicReference<String> latestFollower = new AtomicReference<String>("None");
 	
-	
+	private int amountToGet = 50;
 	//***********************************************************
 	// 				PUBLIC
 	//***********************************************************
@@ -53,7 +53,14 @@ public class UpdateFollowersTask extends RepeatedTask{
 	
 	@Override
 	public void onExecute() {
-		TwitchApi.GET().getFollowers( new MyResponseHandle() );
+		/* Twitch uses a caching policy where they cache responses from previous requests for up 
+		 * to 5 minutes. So if we ask for the same amount of users again and again, we won't get
+		 * updates particularly frequent. 
+		 * So by changing the size of the request, we force Twitch to generate new responses, and
+		 * thus we get more up-to-date responses quicker. 
+		 */
+		amountToGet = --amountToGet <= 15 ? amountToGet : 50; 
+		TwitchApi.GET().getLatestFollowers( amountToGet, new MyResponseHandle() );
 	}
 	
 	//***********************************************************
@@ -80,31 +87,44 @@ public class UpdateFollowersTask extends RepeatedTask{
 	private class MyResponseHandle extends SimpleChannelFollowerHandler{
 		@Override
 		public void onSuccess(int total, List<ChannelFollow> follows) {
+			/* By design, we do not collect users who unfollow and re-follow again during the same
+			 * session. This is to avoid that users spam our onFollow notifications
+			 */
 			if( previousTotal != -1){
-				//Collect the follows that are new
-				List<ChannelFollow> newFollows = follows.stream()
-													   .filter( p -> !previousFollows.contains(p) )
-													   .collect( Collectors.toList() );
-				/* 
-				 * We want to space the newFollower calls out over a minute, so we
-				 * create one task for each new follower and schedule them over the
-				 * span of a minute, with the first one occurring instantly.
+				/*
+				 * Collect the follows that are new.
+				 * While it might be possible to just check the new total against the old
+				 * total, that does not cover the case of one user de-following us and a new
+				 * user following us in the same time frame. This solution covers that case
 				 */
-				int delaySeconds = newFollows.size() > 1 ? 60 / newFollows.size() : 0;
-				for( int i = 0; i < newFollows.size(); i++){
-					String follower = newFollows.get(i).getUser().getDisplayName().toLowerCase(Locale.ENGLISH);
-					
-					//New total = previousTotal + (i+1). The +1 comes from us starting i at 0, whilst it is iteration i+1
-					OneTimeTask task = new MyNewFollowerTask( follower, previousTotal + i + 1, true );  
-					task.schedule( delaySeconds * i * 1000 );
+				List<ChannelFollow> newFollows = follows.stream()
+													    .filter( p -> !previousFollows.contains(p) )
+													    .collect( Collectors.toList() );
+				if( newFollows.size() > 0 ){
+					previousFollows.addAll(newFollows);
+					previousTotal = total;
+					/* 
+					 * We want to space the newFollower calls out over a minute, so we
+					 * create one task for each new follower and schedule them over the
+					 * span of a minute, with the first one occurring instantly.
+					 */
+					int delaySeconds = newFollows.size() > 1 ? 60 / newFollows.size() : 0;
+					for( int i = 0; i < newFollows.size(); i++){
+						String follower = newFollows.get(i).getUser().getDisplayName().toLowerCase(Locale.ENGLISH);
+						
+						//Twitch's total follower count is not sync'd the new followers becoming visible, so we just pass the current total they give us
+						OneTimeTask task = new MyNewFollowerTask( follower, total, true );  
+						task.schedule( delaySeconds * i * 1000 );
+					}
 				}
 			} else {
 				String follower = follows.size() == 0 ? latestFollower.get() : follows.get(0).getUser().getDisplayName().toLowerCase(Locale.ENGLISH);
 				OneTimeTask task = new MyNewFollowerTask( follower, total, false );  
 				task.schedule(0);
+				previousFollows = follows.stream().collect( Collectors.toSet() );
+				previousTotal = total;
 			}
-			previousTotal = total;	
-			previousFollows = follows.stream().collect(Collectors.toSet());
+						
 		}		
 	}
 	

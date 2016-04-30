@@ -57,9 +57,9 @@ public class TwitchIRC {
     	try {
 			prop.load(propertiesFile);
 		} catch (ConfigurationException e1) {
-			//TODO: Handle this error better
-			System.err.println("Could not lode the properties file! Make sure you have a valid 'gikk.ini' in your Home/User/ folder");
-			System.exit(-1);
+			System.err.println("If no valid properties file is found, the program will not work.\n"
+							 + "Concider performing the initialization"
+							 + "process again.");
 		}
     	
         // Fecth settings from our properties file

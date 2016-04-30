@@ -18,27 +18,30 @@ import com.mb3364.twitch.api.models.ChannelFollow;
 class RecursiveFollowerHandler extends SimpleChannelFollowerHandler{
 	private final ChannelFollowsResponseHandler finalHandler;
 	private final LinkedList<ChannelFollow> followers;
+	private final int target;
 	private final int index;
 	
-	public RecursiveFollowerHandler(ChannelFollowsResponseHandler finalHandle) {
+	public RecursiveFollowerHandler(int targetNumber, ChannelFollowsResponseHandler finalHandle) {
 		this.finalHandler = finalHandle;
+		this.target = targetNumber;
 		index = 0;
 		followers = new LinkedList<>();
 	}
 	
-	private RecursiveFollowerHandler(int currnentIndex, LinkedList<ChannelFollow> followersSeenThusFar, ChannelFollowsResponseHandler finalHandle) {
+	private RecursiveFollowerHandler(int currnentIndex, int targetNumber, LinkedList<ChannelFollow> followersSeenThusFar, ChannelFollowsResponseHandler finalHandle) {
 		this.followers = followersSeenThusFar;
 		this.index = currnentIndex;
+		this.target = targetNumber;
 		this.finalHandler = finalHandle;
 	}
 	
 	@Override
 	public void onSuccess(int totalFollowers, List<ChannelFollow> receivedFollowers) {
 		this.followers.addAll(receivedFollowers);
-		int gotten = index + 25;
-		if(  gotten < totalFollowers && gotten < 1600 ){
-			RecursiveFollowerHandler next = new RecursiveFollowerHandler(gotten, followers, finalHandler);
-			TwitchApi.GET().getFollowers(gotten, next);
+		int gotten = index + 100;
+		if( gotten < target && gotten < totalFollowers && gotten < 1600 ){
+			RecursiveFollowerHandler next = new RecursiveFollowerHandler(gotten, target, followers, finalHandler);
+			TwitchApi.GET().getFollowers(gotten, Math.min(100, target-gotten), next);
 		} else {
 			//Call the actual response handler
 			finalHandler.onSuccess(totalFollowers, followers);

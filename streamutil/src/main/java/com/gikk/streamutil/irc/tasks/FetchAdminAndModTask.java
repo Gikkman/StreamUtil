@@ -12,23 +12,29 @@ import com.gikk.streamutil.users.UserStatus;
  * Note that this task does not remove users currently enlisted in the database as moderators that aren't moderators 
  * in the channel anymore. This task is only intended to be used in the program initialization process.
  * 
+ *
  * @author Simon
  *
  */
 public class FetchAdminAndModTask extends OneTimeTask {
 	private final UserDatabaseCommunicator userDatabaseCommunicator;
-	private final GikkBot gikkBot;
-
+	private final GikkBot gikkbot;
+	
 	private final IrcListener thisListener;
 	
-	public static void CREATE_AND_SCHEDULE(GikkBot gB, UserDatabaseCommunicator uDBc){
-		FetchAdminAndModTask task = new FetchAdminAndModTask(gB, uDBc);
-		task.schedule(5 * 1000); //The bot needs to establish a connection before executing this command, so we give it plenty of time
+	/**Creates an instance of this task and schedules it to execute in 10 seconds
+	 * 
+	 * @param gikkbot The instance of GikkBot. This is needed to avoid recursive calls to GikkBot's constructor
+	 * @param uDBc GikkBot's UserDatabaseCommunicator 
+	 */
+	public static void CREATE_AND_SCHEDULE(GikkBot gikkbot, UserDatabaseCommunicator uDBc){
+		FetchAdminAndModTask task = new FetchAdminAndModTask(gikkbot, uDBc);
+		task.schedule(10 * 1000); //The bot needs to establish a connection before executing this command, so we give it plenty of time
 	}
 	
-	private FetchAdminAndModTask(GikkBot gB, UserDatabaseCommunicator uDBc) {
-		this.gikkBot = gB;
+	private FetchAdminAndModTask(GikkBot gikkbot,UserDatabaseCommunicator uDBc) {
 		this.userDatabaseCommunicator = uDBc;
+		this.gikkbot = gikkbot;
 		
     	thisListener = new IrcListener() {
     		@Override
@@ -46,17 +52,18 @@ public class FetchAdminAndModTask extends OneTimeTask {
 	    				if( !mod.matches(admin) ) //Don't wanna demote our admin
 	    					userDatabaseCommunicator.getOrCreate(mod).setStatus(UserStatus.MODERATOR);
 	    			
+	    			//TODO: Would be cool if it actually removed currently enlisted mods that aren't mods anymore
     			}
     		}
 		};	
 		
-		gikkBot.addIrcListener(thisListener);
+		this.gikkbot.addIrcListener(thisListener);
 		
 	}
 	
 	@Override
 	public void onExecute() {
-		gikkBot.channelMessage(".mods");
+		this.gikkbot.channelMessage(".mods");
 	}
 	
 }

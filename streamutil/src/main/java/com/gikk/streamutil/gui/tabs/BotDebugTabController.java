@@ -26,16 +26,13 @@ public class BotDebugTabController extends _TabControllerBase {
 	@FXML protected Spinner<Integer> spn_time; @FXML protected Spinner<Integer> spn_lines;
 	@FXML protected ComboBox<UserStatus> cbb_state;
 	
-	private GikkBot bot;
-	
 	//***********************************************************
 	// 				CONSTRUCTOR
 	//***********************************************************	
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		bot = GikkBot.GET();
 		cbb_state.getItems().addAll( UserStatus.values() );
-		cbb_state.setValue( cbb_state.getItems().get(0) );
+		cbb_state.setValue( cbb_state.getItems().get(2) );
 		
 		spn_lines.setValueFactory( new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100000) );
 		spn_time.setValueFactory(  new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 100000) );
@@ -53,10 +50,6 @@ public class BotDebugTabController extends _TabControllerBase {
 	//***********************************************************
 	// 				PRIVATE
 	//***********************************************************	
-	
-	@FXML protected void sendRawMessage(ActionEvent e){
-		bot.serverMessage( txt_RawMessage.getText() );
-	}
 	
 	@FXML protected void addUser(ActionEvent e){
 		if( txt_UserName.getText().isEmpty() ){

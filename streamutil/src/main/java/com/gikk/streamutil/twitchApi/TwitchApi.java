@@ -74,10 +74,10 @@ public class TwitchApi {
 		
 		/*
 		 * Create a task for firing onNewFollower events. 
-		 * Have it poll Twitch once a minute
+		 * Have it poll Twitch 4 times a minute
 		 */
 		updateFollowerTask = new UpdateFollowersTask();
-		updateFollowerTask.schedule(0, 60 * 1000);
+		updateFollowerTask.schedule(0, 15 * 1000);
 	}
 
 	//***********************************************************************************************
@@ -118,9 +118,26 @@ public class TwitchApi {
 		twitch.streams().get(channel, handler);
 	}
 	
-	public void getFollowers(ChannelFollowsResponseHandler handler){	
-		RecursiveFollowerHandler recursive = new RecursiveFollowerHandler(handler);
-		twitch.channels().getFollows(channel, new RequestParams(), recursive);
+	/**Fetches up to {@code maxAmount} of followers from your channel, ordered by follow-date
+	 * 
+	 * @param maxAmount The amount you want to fetch at most
+	 * @param handler Twitch response handle
+	 */
+	public void getLatestFollowers(int maxAmount, ChannelFollowsResponseHandler handler){
+		/* You can only fetch up to 100 followers per request, so if the maxAmount is larger
+		 * than 100, we need to call the API several times recursively 
+		 */
+		if( maxAmount > 100 ){
+			RecursiveFollowerHandler recursive = new RecursiveFollowerHandler(maxAmount, handler);
+			RequestParams params = new RequestParams();
+			params.put("limit", 100);
+			twitch.channels().getFollows(channel, params ,recursive);
+			
+		} else {
+			RequestParams params = new RequestParams();
+			params.put("limit", maxAmount);
+			twitch.channels().getFollows(channel, params ,handler);
+		}
 	}
 	
 	public int getFollowerCount(){
@@ -183,9 +200,10 @@ public class TwitchApi {
 		});	
 	}
 	
-	void getFollowers(int offset, ChannelFollowsResponseHandler handler){
+	void getFollowers(int offset, int limit, ChannelFollowsResponseHandler handler){
 		RequestParams params = new RequestParams();
 		params.put("offset", offset);
+		params.put("limit", limit);
 		twitch.channels().getFollows(channel, params, handler);
 	}
 }

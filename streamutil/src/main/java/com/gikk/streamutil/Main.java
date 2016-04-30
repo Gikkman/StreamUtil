@@ -3,13 +3,12 @@ package com.gikk.streamutil;
 import java.net.URISyntaxException;
 
 import com.gikk.streamutil.misc.GikkPreferences;
+import com.gikk.streamutil.misc.WindowSettings;
 import com.gikk.streamutil.task.Scheduler;
 
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 /** Starting point for the application. 
@@ -17,9 +16,7 @@ import javafx.stage.Stage;
  * @author Simon
  */
 public class Main extends Application{
-	
-	@FXML TextField txt_field;
-	@FXML TextField txt_field2;
+	private final static String MAIN_WINDOW_NAME = "MAIN_WINDOW";
 	
 	public void start(Stage primaryStage) throws URISyntaxException {
 		ClassLoader cl = this.getClass().getClassLoader();	        
@@ -62,10 +59,17 @@ public class Main extends Application{
 		try {
 			primaryScene = new Scene(FXMLLoader.load( cl.getResource("MainWindow.fxml") ) );
 			primaryScene.getStylesheets().add( cl.getResource("application.css").toExternalForm() );			
+			
+			primaryStage.setOnShowing( (e) -> {
+				WindowSettings.loadWindowPos(primaryStage, MAIN_WINDOW_NAME);
+			} );
 			primaryStage.setOnCloseRequest( (e) -> {
+				WindowSettings.saveWindowPos(primaryStage, MAIN_WINDOW_NAME);
 				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
+				GikkPreferences.GET().clearProperties();
 			} );	
+			
 			primaryStage.setTitle("GikkBot dashboard");
 		} catch(Exception e) {
 			e.printStackTrace();

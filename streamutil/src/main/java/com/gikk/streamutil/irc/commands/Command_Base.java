@@ -41,28 +41,28 @@ public abstract class Command_Base implements IrcListener{
 		/* This could've been done with REGEX matching, instead of using startsWith()/contains().
 		 * 
 		 * This is much simpler though and easier to understand and maintain. Also, since the 
-		 * amount of work requirered is so small, the gain from using a Matcher is probably 
+		 * amount of work required is so small, the gain from using a Matcher is probably 
 		 * close to zero
 		 * 
 		 * We get the command by stripping everything but the first word away.
+		 * This is used when looking for prefix commands
 		 */
-		String content = message.getContent();
-		String trim = content.trim();
-		String[] split = trim.split("\\s");
+		String content = message.getContent().trim();
+		String[] split = content.split("\\s", 2);
 		String command = split[0].toLowerCase(Locale.ENGLISH);
 		
 		if( type == CommandType.PREFIX_COMMAND ){
 			for( String pattern : commandPattern ){
 				if( command.startsWith(pattern) ){
-					performCommand(command, sender, message);
+					performCommand(pattern, sender, message);
 					break;	//We don't want to fire twice for the same message
 				}
 			}
 		}
 		else {
 			for( String pattern : commandPattern ) {
-				if( command.contains(pattern) ){
-					performCommand(command, sender, message);
+				if( content.contains(pattern) ){
+					performCommand(pattern, sender, message);
 					break; //We don't want to fire twice for the same message
 				}
 			}
@@ -82,10 +82,12 @@ public abstract class Command_Base implements IrcListener{
 	 */
 	protected abstract String getCommandWords();
 	
-	/**
-	 * This method is the commands execution. This will be called whenever a chat line
+	/** This method is the commands execution. This will be called whenever a chat line
 	 * is seen that matches the commandPattern
-	 * @param command TODO
+	 * 
+	 * @param command The string that caused us to fire this command
+	 * @param sender The IrcUser who issued the command
+	 * @param message The IrcMessage that triggered the command
 	 */
 	protected abstract void performCommand(String command, IrcUser sender, IrcMessage message);
 	

@@ -34,7 +34,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
  * number of followers and subs, latest follower and subs and more. It also allows the user to change the stream
  * title and game on Twitch.<br><br>
  * 
- * TODO: Add support for right click actions on people that are online
  * 
  * @author Simon
  *

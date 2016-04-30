@@ -13,7 +13,7 @@ import com.mb3364.twitch.api.models.UserFollow;
  * 
  * There is a risk that we miss follows, if someone follow us
  * while we are offline. But this listener will catch that and 
- * correct the users FOLLOWRE status
+ * correct the users FOLLOWER status
  * 
  * @author Simon
  *

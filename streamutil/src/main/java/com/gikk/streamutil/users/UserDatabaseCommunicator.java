@@ -1,18 +1,19 @@
 package com.gikk.streamutil.users;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import com.gikk.gikk_stream_util.GikkStreamUtilApplication;
 import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.speedment.Speedment;
 import com.speedment.exception.SpeedmentException;
-import com.speedment.field.predicate.ComparableSpeedmentPredicate;
 import com.speedment.internal.util.MetadataUtil;
 import com.speedment.manager.Manager;
 
@@ -109,30 +110,21 @@ public class UserDatabaseCommunicator {
 		return null;
 	}
 	
-	/**Retrieves a list of the X users with the highest time online. 
+	/**Retrieves the first X users whom match the argument {@code comparator}.<br><br>
 	 * 
-	 * @param amount How many users you want. If {@code amount} is less than 1, this method might throw an error
-	 * @return List of {@code ObservableUser} with up to {@code amount} elements in it.
+	 * <b>Example:</b> {@code GetUsersWhere( Users.LINES_WRITTEN.compratator.reverse(), 5}<br>
+	 * Will return a list of the 5 users with he most lines written
+	 * 
+	 * @param comparator The comparator to user. The comparator is insertend into a {@code stream().sorted()} statement.
+	 * @param amount The maximum of users to retrieve. This value have to be 0 or higher.
+	 * @return An ordered list of {@code ObservableUsers}, that matches the {@code comparator}
 	 */
-	public synchronized List<ObservableUser> getTopTimeUsers(int amount){	
+	public synchronized List<ObservableUser> getUsersWhere(Comparator<Users> comparator, int amount){	
 		flushToDatabase();	//We have to flush cashed data before we can stream over the database
 		
 		List<ObservableUser> users = new LinkedList<>();
 		userDatabase.stream()
-					.sorted( Users.TIME_ONLINE.comparator().reversed() )
-					.limit(amount)
-					.forEach( p ->  {
-						users.add( retreiveUser( p.getUsername() ) );
-					} );
-		return users;
-	}
-	
-	public synchronized List<ObservableUser> getTopLineUsers(int amount){	
-		flushToDatabase();	//We have to flush cashed data before we can stream over the database
-		
-		List<ObservableUser> users = new LinkedList<>();
-		userDatabase.stream()
-					.sorted( Users.LINES_WRITTEN.comparator().reversed() )
+					.sorted( comparator )
 					.limit(amount)
 					.forEach( p ->  {
 						users.add( retreiveUser( p.getUsername() ) );
@@ -145,25 +137,27 @@ public class UserDatabaseCommunicator {
 	 * <b>Example:</b> {@code getRandomUserWhere( Users.TIME_ONLINE.eqals(0)}<br>
 	 * Will fetch a random user whom's TIME_ONLINE field equals to 0
 	 *  
-	 * @param comparator The comparator to use
+	 * @param predicate The predicate to use
 	 * @return A random user that matches the comparator, or {@code null} if there is none
 	 */
-	public synchronized ObservableUser getRandomUserWhere( ComparableSpeedmentPredicate<Users, Integer, Integer> comparator) {
+	public synchronized ObservableUser getRandomUserWhere( Predicate<Users> predicate) {
 		flushToDatabase(); //We have to flush cashed data before we can stream over the database
 
 		/* We want to fetch a random user matching the comparator. However, my knowledge of streams are
 		 * limited, so I use this work around to get both the .count() method and .findAny()
 		 */
-		Stream<Users> stream = userDatabase.stream().unordered().parallel().filter( comparator );
-		Optional<Users> opt = stream.skip( rng.nextInt( (int) stream.count() ) ).findAny();
-		
-		//If we didn't find anyone matching the comparator, return null
-		if( !opt.isPresent() ){
-			return null;
+		Stream<Users> stream = userDatabase.stream().filter( predicate );		
+		long count = stream.count();
+
+		if( count > 0 ) {
+			//Just calling .findAny() has a tendency to get the same user repeated times.
+			//Therefore, we skip a random number of elements in the stream. This gives a more random result
+			Optional<Users> opt = stream.skip( rng.nextInt( (int) stream.count() ) ).findAny();
+			if( opt.isPresent() ){
+				return retreiveUser( opt.get().getUsername() );
+			}
 		}
-		else{
-			return retreiveUser( opt.get().getUsername() );
-		}
+		return null;
 	}
 	
 	public synchronized void onProgramExit(){

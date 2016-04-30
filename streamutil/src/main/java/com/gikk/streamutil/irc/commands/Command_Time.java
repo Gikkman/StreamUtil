@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.commons.lang.math.NumberUtils;
 
+import com.gikk.gikk_stream_util.db0.gikk_stream_util.users.Users;
 import com.gikk.streamutil.GikkBot;
 import com.gikk.streamutil.irc.IrcMessage;
 import com.gikk.streamutil.irc.IrcUser;
@@ -69,7 +70,7 @@ public class Command_Time extends Command_Base{
 			return;
 		}	
 		
-		List<ObservableUser> oUsers = uDBc.getTopTimeUsers( target );
+		List<ObservableUser> oUsers = uDBc.getUsersWhere( Users.TIME_ONLINE.comparator().reversed(), target);
 		String out = "Time online Top" + amount +" users: ";		
 		for( int i = 1; i <= oUsers.size(); i++ ){
 			out += "[" + i + "] " + oUsers.get(i-1).getUserName() +" : " + oUsers.get(i-1).getTimeOnlineFormated() +" | ";

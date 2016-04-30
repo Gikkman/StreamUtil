@@ -25,21 +25,7 @@ import javafx.collections.ObservableList;
 
 /**<b>SINGLETON</b><br><br>
  * 
- * Class that allows for easy use of the underlying IRC connection. The IRC bot loads all its setting from
- * a file named 'gikk.ini' located in the user's home directory. <br><br>
- * 
- * The file should contain the following fields:<br>
- * --------------------------------------------------<br><code>
-	Nick = BOT_NAME<br>
-	Password = oauth:********************** <br>
-	<br>
-	Server = irc.twitch.tv<br>
-	Port = 6667<br>
-	<br>
-	Channel = #YOUR_STREAM_CHANNEL<br>
-	ClientID = YOUR_CLIENT_ID<br></code>
- * --------------------------------------------------<br><br>
- * 
+ * Class that allows for easy use of the underlying IRC connection.  
  * 
  * @author Simon
  */
@@ -91,49 +77,57 @@ public class GikkBot{
 	//***********************************************************************************************
 	//											PUBLIC
 	//***********************************************************************************************
+	/**Sends a message to the IRC channel. <br>
+	 * Formating is done behind the scenes. You only need to pass the text you want to
+	 * appear on IRC
+	 * 
+	 * @param message The message you want to post in the IRC channel.
+	 */
 	public void channelMessage(String message){
 		irc.channelMessage(message);
 		//Remember to update the number of line our bot's written :-)
 		userDatabaseCommunicator.getOrCreate( irc.getNick() ).addLinesWritten(1);
 	}
 	
-	public void clearChat(){
-		irc.priorityChannelMessage(".clear");
-	}
-	
-	public void purgeUser(String user){
-		timeoutUser(user, 1);
-	}
-	
-	public void timeoutUser(String user, int time){
-		irc.priorityChannelMessage(".timeout " + user + " " + time);
-	}
-	
-	public void serverMessage(String text) {
-		irc.serverMessage(text);	
+	/**Method for retrieving the name of the TwitchIRC channel we are
+	 * connected to
+	 * 
+	 * @return The channel name (with the leading #)
+	 */
+	public String getChannel() {
+		return irc.getChannel();
 	}
 	
 	public void addIrcListener(IrcListener listener){
 		irc.addIrcListener(listener);	
 	}
 	
-	public String getChannel() {
-		return irc.getChannel();
-	}
-	
 	public void removeIrcListener(IrcListener listener){
 		irc.removeIrcListener(listener);	
 	}
 	
+	/**Method for retrieving the list of users that are online. The list
+	 * is observable, so that JavaFX applications can monitor it
+	 * 
+	 * @return An ObservableList of all users that are online.
+	 */
 	public ObservableList<ObservableUser> getUsersOnlineList(){
 		return userOnlineTracker.getUserOnlineList();
 	}
 	
+	/**Disposes of the Singleton's resources, such as IRC threads. Also flushes the 
+	 * database to storage 
+	 */
 	public void onProgramExit(){
 		irc.dispose();
 		userDatabaseCommunicator.onProgramExit();
 	}
 	
+	/**This method is only here for testing purposes, so we can modify the database via the GUI.
+	 * TODO: Remove
+	 * 
+	 * @return The UserDatabaseCommunicator
+	 */
 	public UserDatabaseCommunicator getDB(){
 		return userDatabaseCommunicator;
 	}
@@ -146,7 +140,7 @@ public class GikkBot{
 		irc.addIrcListener( new Command_Stats(userDatabaseCommunicator) );
 		irc.addIrcListener( new Command_Time( userDatabaseCommunicator) );
 		irc.addIrcListener( new Command_Trust(userDatabaseCommunicator) );
-		irc.addIrcListener( new Command_Tick() );
 		irc.addIrcListener( new Command_Lines(userDatabaseCommunicator) );
+		irc.addIrcListener( new Command_Tick() );
 	}
 }

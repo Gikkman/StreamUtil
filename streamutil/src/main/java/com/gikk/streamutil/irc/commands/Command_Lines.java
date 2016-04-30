@@ -11,6 +11,22 @@ import com.gikk.streamutil.irc.IrcUser;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 
+/**Lets user check lines written for themselves, another user or the top X lines written.<br><br>
+ * 
+ * This command has four different syntaxes: <ul>
+ * <li>!lines
+ * <li>!lines [user]
+ * <li>!lines [number] (Range: 1 - 10 )
+ * <li>!lurker
+ * </ul> 
+ * The first syntax will check the senders lines written. The second syntax checks [user]'s lines written.
+ * The third syntax checks the top [numbers] users lines written.<br> 
+ * The forth syntax will find a random user whom have a total online time of 10 or more minutes, 
+ * and have written less than 10 lines, and say their name in chat. The user does not have to be online right now
+ * 
+ * @author Simon
+ *
+ */
 public class Command_Lines extends Command_Base{
 	//***********************************************************
 	// 				VARIABLES
@@ -60,7 +76,7 @@ public class Command_Lines extends Command_Base{
 			return;
 		}	
 		
-		List<ObservableUser> oUsers = uDBc.getTopLineUsers( target );
+		List<ObservableUser> oUsers = uDBc.getUsersWhere( Users.LINES_WRITTEN.comparator().reversed(), target);
 		String out = "Lines written Top" + amount +" users: ";		
 		for( int i = 1; i <= oUsers.size(); i++ ){
 			out += "[" + i + "] " + oUsers.get(i-1).getUserName() +" : " + oUsers.get(i-1).getLinesWritten() +" | ";
@@ -76,11 +92,12 @@ public class Command_Lines extends Command_Base{
 			return;
 		}
 		
-		GikkBot.GET().channelMessage( "Lines written for " + oUser.getUserName() + ":" + oUser.getTimeOnlineFormated() );
+		GikkBot.GET().channelMessage( "Lines written for " + oUser.getUserName() + ":" + oUser.getLinesWritten() );
 	}
 	
 	private void exposeRandomLurker() {
-		ObservableUser oUser = uDBc.getRandomUserWhere( Users.LINES_WRITTEN.lessOrEqual(10) );	
+		//TODO: Consider this only finding user that are actually online right now...
+		ObservableUser oUser = uDBc.getRandomUserWhere( Users.LINES_WRITTEN.lessOrEqual(10).and( Users.TIME_ONLINE.greaterOrEqual(10)));	
 		if( oUser != null )
 			GikkBot.GET().channelMessage("All eyes on " + oUser.getUserName() + ". Say \"Hi!\" to the lurker!");
 		else

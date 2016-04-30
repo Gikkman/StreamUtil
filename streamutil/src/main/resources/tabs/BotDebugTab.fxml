@@ -4,18 +4,19 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.text.TextFlow?>
 
 <AnchorPane prefHeight="350.0" prefWidth="675.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.tabs.BotDebugTabController">
    <children>
-      <TextField fx:id="txt_RawMessage" layoutX="14.0" layoutY="62.0" prefHeight="25.0" prefWidth="375.0" />
-      <Label layoutX="14.0" layoutY="34.0" text="Raw Message" />
-      <Button layoutX="403.0" layoutY="62.0" mnemonicParsing="false" onAction="#sendRawMessage" prefHeight="25.0" prefWidth="49.0" text="Go" />
-      <Button layoutX="321.0" layoutY="139.0" mnemonicParsing="false" onAction="#addUser" prefHeight="179.0" prefWidth="52.0" text="ADD" />
+      <Button layoutX="321.0" layoutY="178.0" mnemonicParsing="false" onAction="#addUser" prefHeight="140.0" prefWidth="52.0" text="ADD" />
       <Label layoutX="14.0" layoutY="115.0" prefHeight="17.0" prefWidth="107.0" text="Add custom user" />
-      <TextField fx:id="txt_UserName" layoutX="79.0" layoutY="140.0" prefHeight="25.0" prefWidth="219.0" />
+      <TextField fx:id="txt_UserName" layoutX="79.0" layoutY="140.0" prefHeight="25.0" prefWidth="294.0" promptText="May only contain letters, numbers and underscores" />
       <Label layoutX="14.0" layoutY="144.0" prefHeight="17.0" prefWidth="63.0" text="User name" />
       <RadioButton fx:id="rad_Fol" layoutX="14.0" layoutY="179.0" mnemonicParsing="false" text="Follower" />
       <RadioButton fx:id="rad_Sub" layoutX="111.0" layoutY="179.0" mnemonicParsing="false" text="Subscriber" />
@@ -25,5 +26,17 @@
       <Label layoutX="14.0" layoutY="217.0" text="Minutes online" />
       <Label layoutX="14.0" layoutY="256.0" text="Lines written" />
       <ComboBox fx:id="cbb_state" layoutX="18.0" layoutY="288.0" prefHeight="25.0" prefWidth="246.0" />
+      <Separator layoutX="11.0" layoutY="108.0" prefHeight="0.0" prefWidth="644.0" />
+      <Separator layoutX="413.0" layoutY="126.0" orientation="VERTICAL" prefHeight="200.0" />
+      <TextFlow layoutX="14.0" layoutY="15.0" prefHeight="83.0" prefWidth="647.0" textAlignment="JUSTIFY" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="This tab is only here for testing purposes, and to let you add users directly to the database. Since most of the chat commands will do something with the users in the database, it is hard to test without the ability to add new users. If you for some reason want to clear the entire database of users, close down the program and re-run the SQL command from the initialization process (the SQL command can also be found on this programs GitHub page. " wrappingWidth="681.224609375" />
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text=" Adding users via this panel will not make them show up as online on the StreamSettings tab">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font>
+            </Text>
+         </children>
+      </TextFlow>
    </children>
 </AnchorPane>

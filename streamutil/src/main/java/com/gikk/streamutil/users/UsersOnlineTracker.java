@@ -1,8 +1,5 @@
 package com.gikk.streamutil.users;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,16 +32,13 @@ public class UsersOnlineTracker {
 		});
 	}
 	
-	public void joinUser(String ... users ){
-		List<ObservableUser> oUsers = new LinkedList<>();
-		for( int i = 0; i < users.length; i++ )
-			oUsers.add( database.getOrCreate( users[i] ) );		
+	public void joinUser(String user ){
+		ObservableUser oUser = database.getOrCreate( user );		
 		
 		Platform.runLater( () -> {
-			//TODO: If I find time, I want to make this better
-			for( ObservableUser oUser : oUsers )
-				if( !usersOnline.contains(oUser) )
-					usersOnline.add(oUser);
+			//Twitch sometimes drops PART messages, and we don't want to rejoin an already present user
+			if( !usersOnline.contains(oUser) )
+				usersOnline.add(oUser);
 		});
 	}
 	
