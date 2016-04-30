@@ -44,6 +44,9 @@ CONTENT COMMANDS
 1. Download the project and import it as a Maven project.
 2. Run the project and follow the initialization instructions.
 3. After the initialization, re-launch the program.
+
+##### OPTIONAL
+It is possible to import and run it via JitPack, it seems. However, sources and javadoc does not get attached unfortiunetly (I don't know why though), so I would recommend against it.
   
 ##Instructions (Initialization)
 The first time the program is launched the initializer will fire up. The initialization should be quite self-explanatory. But just in case, here are the in-depth instructions for how to initialize the program:
@@ -96,17 +99,21 @@ The first time the program is launched the initializer will fire up. The initial
 5. Step 5
   1. This window will just tell you that everything is set up. Press the button to finnalize the process. The program will terminate.
   2. Relaunch the program, this will take you to the main dashboard.
+  3. Rember to mod your bot! Type **.mod [bot account]** into your chat. Otherwise, the bot's ability to interact will be limited
+
+From the main dashboard, it is possible to change your channels Title- and Game fields. You can also se whom are online in your IRC channel (and some data related to them). There is also a debug tab which allows you to add users directly to the database, and a button for clearing preferences (will launch the init chain again on startup). If you enter users via the debug tab, be careful and follow the stated rules. Adding custom users that aren't correct my cause errors in the program.
+
   
 ## Known issued
 Twitch's API and IRC is difficult to work with. There is a lot of undocumented details and quirks that I have to work around, but there are still a few details I know I don't cover 100%
 
-1. Follower alerts are slow and sometimes arive in incorrect order
+1. Follower alerts are slow and sometimes arrive in incorrect order
 2. Sometimes, old follower alerts are triggered again. I am not sure why, it seems that the API gets confused when people un-follows channels.
 3. JOIN/PART from IRC are delayed a lot, sometimes PART messages are dropped
-4. .mod messages are very slow
+4. .mod messages are very slow. It might take up to 5 minutes for them to take effect (even if they show up much quicker in twitch chat)
 5. .mod status is not revoked if a user is unmodded whilst the bot is disconnected. To revoke mod status, re-mod and then unmod the user while the bot is connected.
 6. The IRC socket resets sometimes. Might be my connection where I debug, but I know it happens sometimes.
-7. The way I load resources means that I cannot deploy the project. However, I realized that far to late and thus don't have the time to fix it. Therefor, this project can only be run from an IDE
+7. Newly created Twitch account have some really strange quirks to them. Amongst other, they are not indexed within the first 10-15 minutes, which might cause them to not show up when searching for. This might cause some strange behaviours, which I cannot predict nor help.
 
 ## Contant
 If there are any issued, or any questions, you can reach me via twitter @Gikkman
