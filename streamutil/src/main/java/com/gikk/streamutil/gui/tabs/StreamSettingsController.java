@@ -129,14 +129,22 @@ public class StreamSettingsController extends _TabControllerBase{
 	//									PRIVATE
 	//************************************************************************************************** 
 	private void setStatuses(String status, String game, String viewerCount, String alltimeViewCount){
+		//Status and Game can be null, in case the user hasn't set one for his/her stream
+		if( status == null )
+			status = "Connected! Try setting a status!";
+		if( game == null )
+			game = "Connected! Try setting a game!";
+		
+		final String newStatus = status;
+		final String newGame   = game;
 		Platform.runLater( () -> {
-			if( !onlineStreamStatus.matches(status) ){
-				onlineStreamStatus = status;
-				txt_streamStatus.setText(status);
+			if( !onlineStreamStatus.matches(newStatus) ){
+				onlineStreamStatus = newStatus;
+				txt_streamStatus.setText(newStatus);
 			}
-			if( !onlineStreamGame.matches(game) ){
-				onlineStreamGame = game;
-				txt_streamGame.setText(game);
+			if( !onlineStreamGame.matches(newGame) ){
+				onlineStreamGame = newGame;
+				txt_streamGame.setText(newGame);
 			}
 			if( !onlineAlltimeViewCount.matches(alltimeViewCount)){
 				onlineAlltimeViewCount = alltimeViewCount;

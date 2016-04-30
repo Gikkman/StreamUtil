@@ -67,7 +67,6 @@ public class Main extends Application{
 				WindowSettings.saveWindowPos(primaryStage, MAIN_WINDOW_NAME);
 				GikkBot.GET().onProgramExit();
 				Scheduler.GET().onProgramExit();
-				GikkPreferences.GET().clearProperties();
 			} );	
 			
 			primaryStage.setTitle("GikkBot dashboard");

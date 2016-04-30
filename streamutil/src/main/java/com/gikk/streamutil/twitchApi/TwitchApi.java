@@ -1,11 +1,11 @@
 package com.gikk.streamutil.twitchApi;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import com.gikk.streamutil.misc.GikkPreferences;
 import com.gikk.streamutil.twitchApi.tasks.FollowerListener;
 import com.gikk.streamutil.twitchApi.tasks.UpdateFollowersTask;
 import com.mb3364.http.RequestParams;
@@ -56,7 +56,7 @@ public class TwitchApi {
 	private TwitchApi(){
 		twitch = new Twitch();
 		
-		File file = Paths.get( System.getProperty("user.home"), "gikk.ini" ).toFile();
+		File file = GikkPreferences.GET().getPropertiesFile();
 	   	PropertiesConfiguration prop = new PropertiesConfiguration();
     	prop.setDelimiterParsingDisabled(true);
     	try {

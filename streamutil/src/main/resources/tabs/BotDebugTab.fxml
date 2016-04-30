@@ -38,5 +38,11 @@
             </Text>
          </children>
       </TextFlow>
+      <Button layoutX="495.0" layoutY="184.0" mnemonicParsing="false" onAction="#clearProperties" text="Clear properties" />
+      <TextFlow layoutX="419.0" layoutY="112.0" prefHeight="72.0" prefWidth="252.0">
+         <children>
+            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="This button clears the preferences node. This will cause the program to launch the Initialization screen again then next time the program is started." />
+         </children>
+      </TextFlow>
    </children>
 </AnchorPane>

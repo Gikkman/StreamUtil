@@ -15,10 +15,28 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="434.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.gikk.streamutil.gui.init.InitStep4Controller">
    <children>
-      <VBox layoutX="14.0" layoutY="14.0" spacing="5.0">
+      <VBox layoutX="14.0" layoutY="14.0" spacing="5.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
          <children>
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The last thing we need to do is give our bot access to the Twitch API. This is needed for the bot to be able to probe the channel for information, as well as being able to update certain data on the channel (such as game and title)." wrappingWidth="541.076171875" />
-            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The button bellow will open a web page where you authorize access to your channel. The name of the application should match the name you registered on application you registered in Step 3. On this page, you can also see all the previliges the bot will have." wrappingWidth="541.0761838323087" />
+            <TextFlow>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The last thing we need to do is give our bot access to the Twitch API. This is needed for the bot to be able to probe the channel for information, as well as being able to update certain data on the channel (such as game and title)." wrappingWidth="541.076171875" />
+               </children>
+            </TextFlow>
+            <TextFlow>
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Log into your stream account before proceeding! ">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="The button bellow will open a web page where you authorize access to your channel. The name of the application should match the name you registered on application you registered in Step 3. On this page, you can also see all the previliges the bot will have. " wrappingWidth="541.0761838323087" />
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Make sure that it is your streaming account's name bellow the &quot;Is this you?&quot; question!">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Text>
+               </children>
+            </TextFlow>
             <TextFlow prefHeight="0.0" prefWidth="542.0">
                <children>
                   <Text strokeType="OUTSIDE" strokeWidth="0.0" text="From when you press the button, you will have" />
@@ -55,7 +73,7 @@
             <HBox alignment="CENTER_LEFT" nodeOrientation="LEFT_TO_RIGHT" spacing="20.0">
                <children>
                   <Button fx:id="btn_Finish" mnemonicParsing="false" onAction="#click_finish" prefHeight="48.0" prefWidth="76.0" text="Finish" />
-                  <GridPane prefHeight="148.0" prefWidth="403.0">
+                  <GridPane prefHeight="117.0" prefWidth="403.0">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="194.0" minWidth="10.0" prefWidth="78.0" />
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="340.0" minWidth="10.0" prefWidth="325.0" />

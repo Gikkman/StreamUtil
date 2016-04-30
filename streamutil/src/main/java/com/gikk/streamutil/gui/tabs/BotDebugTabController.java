@@ -4,6 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.gikk.streamutil.GikkBot;
+import com.gikk.streamutil.misc.GikkPreferences;
 import com.gikk.streamutil.users.ObservableUser;
 import com.gikk.streamutil.users.UserDatabaseCommunicator;
 import com.gikk.streamutil.users.UserStatus;
@@ -50,6 +51,9 @@ public class BotDebugTabController extends _TabControllerBase {
 	//***********************************************************
 	// 				PRIVATE
 	//***********************************************************	
+	@FXML protected void clearProperties(ActionEvent e){
+		GikkPreferences.GET().clearProperties();
+	}
 	
 	@FXML protected void addUser(ActionEvent e){
 		if( txt_UserName.getText().isEmpty() ){
