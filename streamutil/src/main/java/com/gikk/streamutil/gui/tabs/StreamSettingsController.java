@@ -52,8 +52,11 @@ public class StreamSettingsController extends _TabControllerBase{
 	private ObservableList<ObservableUser> usersOnline;
 	private TwitchApi api;
 	
-	private String onlineStreamStatus = "", onlineStreamGame = "", onlineSubCount = "",
-				   onlineViewCount = "", 	onlineAlltimeViewCount = "";
+	private String onlineStreamStatus = "DEFAULT_STRING_WILL_BE_REPLACED", 
+				   onlineStreamGame   = "DEFAULT_STRING_WILL_BE_REPLACED", 
+				   onlineSubCount     = "DEFAULT_STRING_WILL_BE_REPLACED",
+				   onlineViewCount    = "DEFAULT_STRING_WILL_BE_REPLACED", 	
+				   onlineAlltimeViewCount = "DEFAULT_STRING_WILL_BE_REPLACED";
 	
 	
 	@Override
